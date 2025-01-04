@@ -117,6 +117,18 @@ const Sidebar = () => {
             <i className="bx bxs-credit-card-alt mr-2 text-2xl" />
             Fee Topic
           </NavLink>
+
+          <NavLink
+            to="/Attendence"
+            className={({ isActive }) =>
+              `flex items-center cursor-pointer py-4 transition-all duration-300 hover:translate-x-1 ${
+                isActive ? "text-indigo-800 font-bold" : "text-gray-600"
+              }`
+            }
+          >
+            <i className="bx bxs-calendar mr-2 text-2xl" />
+            Attendence
+          </NavLink>
           
         </div>
 

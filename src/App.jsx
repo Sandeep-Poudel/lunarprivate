@@ -38,6 +38,9 @@ const InsertFeeTopic = lazy(()=>import('./components/feeTopic/InsertFeeTopic'));
 const UpdateFeeTopic = lazy(()=>import('./components/feeTopic/UpdateFeeTopic'));
 const SeeAllFeeTopic = lazy(()=>import('./components/feeTopic/SeeAllFeeTopic'));
 
+//Attendence
+const GetAttendence = lazy(()=>import('./components/attendence/GetAttendence'));
+
 //Person Category
 const GetPersonCategory = lazy(()=>import('./components/personCategory/GetPersonCategory'));
 const InsertPersonCategory = lazy(()=>import('./components/personCategory/InsertPersonCategory'));
@@ -111,6 +114,11 @@ function App() {
                 <Route path='insert' element={<InsertFeeTopic/>} />
                 <Route path='update/:id' element={<UpdateFeeTopic/>} />
                 <Route path='seeDetail/:id' element={<SeeAllFeeTopic/>} />
+              </Route>
+
+              {/* For Attendence */}
+              <Route path='attendence/'>
+                <Route index element={<GetAttendence/>}/>
               </Route>
 
               {/* For Person Category */}
