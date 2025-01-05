@@ -39,7 +39,7 @@ const UpdateFeeTopic = lazy(()=>import('./components/feeTopic/UpdateFeeTopic'));
 const SeeAllFeeTopic = lazy(()=>import('./components/feeTopic/SeeAllFeeTopic'));
 
 //Attendence
-const GetAttendence = lazy(()=>import('./components/attendence/GetAttendence'));
+const GetAttendance = lazy(()=>import('./components/attendance/GetAttendance'));
 
 //Person Category
 const GetPersonCategory = lazy(()=>import('./components/personCategory/GetPersonCategory'));
@@ -118,7 +118,7 @@ function App() {
 
               {/* For Attendence */}
               <Route path='attendence/'>
-                <Route index element={<GetAttendence/>}/>
+                <Route index element={<GetAttendance/>}/>
               </Route>
 
               {/* For Person Category */}
