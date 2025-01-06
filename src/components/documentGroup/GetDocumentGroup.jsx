@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import handleCatchError from '../../utils/handleCatchError';
 import DocumentGroupTableRow from './DocumentGroupTableRow';
 import DocumentGroupCard from './DocumentGroupCard';
+import Pagination from '../../utils/Pagination';
 
 function GetDocumentGroup() {
   const navigate = useNavigate();
@@ -145,7 +146,6 @@ function GetDocumentGroup() {
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
-
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
   return (
@@ -265,34 +265,7 @@ function GetDocumentGroup() {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-between items-center mt-4">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="p-2 border rounded disabled:bg-blue-300 bg-blue-600 disabled:hover:bg-blue-300 text-white hover:bg-blue-800 "
-            >
-              Previous
-            </button>
-            <div className="flex gap-2">
-              {Array.from({ length: totalPages }, (_, idx) => (
-                <button
-                  key={idx + 1}
-                  onClick={() => setCurrentPage(idx + 1)}
-                  className={`p-2 border rounded ${currentPage === idx + 1 ? "bg-blue-600 text-white" : "hover:bg-blue-800 hover:text-white"
-                    }`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-            </div>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="p-2 border rounded disabled:bg-blue-300 bg-blue-600 disabled:hover:bg-blue-300 text-white hover:bg-blue-800"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
         </div >
       )
       }
