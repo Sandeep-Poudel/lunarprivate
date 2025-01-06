@@ -5,6 +5,7 @@ import handleCatchError from "../../utils/handleCatchError";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../utils/Loader";
 import AttendanceTableRow from "./AttendanceTableRow";
+import Pagination from "../../utils/Pagination";
 import Dropdown from "../../utils/Dropdown";
 
 function GetAttendance() {
@@ -19,7 +20,7 @@ function GetAttendance() {
     const [search, setSearch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [datas, setDatas] = useState([]);
-    const [rowsPerPage] = useState(2);
+    const [rowsPerPage] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredData, setFilteredData] = useState([]);
     const [monthSelection, setMonthSelection] = useState(null);
@@ -54,15 +55,11 @@ function GetAttendance() {
     );
 
     // Fetch data from the API
-
     const fetchAttendance = async () => {
         try {
             setIsLoading(true);
-            const response = await customAxios.get(
-                `/DailyAttendance/GetList/${endDate}/${startDate}`
-            );
+            const response = await customAxios.get(`/DailyAttendance/GetList/${endDate}/${startDate}`);
             setDatas(response.data);
-            //using dummy data since [] is coming from api
             setFilteredData(response.data);
             console.log(response.data);
         } catch (error) {
@@ -72,33 +69,89 @@ function GetAttendance() {
         }
     };
 
+    //Attend in the User
     const attendIn = async () => {
         try {
-            const data = await customAxios.post(`/DailyAttendance/AttendanceIn`);
-            console.log(data);
-        } catch (error) {
-            handleCatchError(error, navigate);
-        }
-    };
-    const attendOut = async () => {
-        try {
-            const data = await customAxios.put(`/DailyAttendance/AttendanceOut`);
+            const data = await customAxios.post(
+                `/DailyAttendance/AttendanceIn`
+            );
             console.log(data);
         } catch (error) {
             handleCatchError(error, navigate);
         }
     };
 
+    //Attend out the User
+    const attendOut = async () => {
+        try {
+            const data = await customAxios.put(
+                `/DailyAttendance/AttendanceOut`
+            );
+            console.log(data);
+        } catch (error) {
+            handleCatchError(error, navigate);
+        }
+    };
+
+    // Handle data change
     const handleDataChange = () => {
         fetchAttendance();
     };
+
     const handleSearch = () => {
         // Handle search logic here
+        if (startDate === "") {
+            setStartDate(`${new NepaliDate().format("YYYY-MM")}-01`);
+            return;
+        }
+        if (endDate === "") {
+            setEndDate(`${new NepaliDate().format("YYYY-MM-DD")}`);
+        }
         setSearch(!search);
         console.log("Start Date:", startDate);
         console.log("End Date:", endDate);
     };
 
+    const handleStartDateChange = (e) => {
+        setStartDate(e.target.value);
+    };
+    const handleEndDateChange = (e) => {
+        setEndDate(e.target.value);
+    };
+
+    const filterData = (data) => {
+        let updatedData = [...data];
+        if (monthSelection && yearSelection) {
+            updatedData = datas.filter((item) => {
+                const date = new NepaliDate(item.DateBs);
+                return (
+                    date.format("MM") === monthSelection.value &&
+                    date.format("YYYY") === yearSelection.value
+                );
+            });
+        } else if (monthSelection) {
+            updatedData = datas.filter((item) => {
+                const date = new NepaliDate(item.DateBs);
+                return date.format("MM") === monthSelection.value;
+            });
+        } else if (yearSelection) {
+            updatedData = datas.filter((item) => {
+                const date = new NepaliDate(item.DateBs);
+                return date.format("YYYY") === yearSelection.value;
+            });
+        }
+        setFilteredData(updatedData);
+        setCurrentPage(1);
+        console.log(updatedData);
+    };
+    const handleClearFilter = () => {
+        setMonthSelection(null);
+        setYearSelection(null);
+    };
+
+    useEffect(() => {
+        filterData(datas);
+    }, [monthSelection, yearSelection]);
     useEffect(() => {
         fetchAttendance();
     }, [search]);
@@ -107,9 +160,7 @@ function GetAttendance() {
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
-
     const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-
     return (
         <>
             {isLoading ? (
@@ -117,53 +168,82 @@ function GetAttendance() {
             ) : (
                 <div className="flex flex-col gap-4">
                     <h1 className="text-3xl text-center">Attendence List</h1>
-                    <button className="rounded-md bg-blue-600 px-3 py-2 w-36 text-white border-none hover:bg-blue-700" onClick={attendIn}>Attend In</button>
-                    <button className="rounded-md bg-blue-600 px-3 py-2 w-36 text-white border-none hover:bg-blue-700" onClick={attendOut}>Attend Out</button>
-                    <div className="flex flex-row gap-4">
-                        <div className="flex   flex-col">
-                            <h2 className="text-md font-semibold">
-                                Start Date
-                            </h2>
-                            <input
-                                className="w-48 p-2 rounded border-2 "
-                                type="text"
-                                onChange={(e) => setStartDate(e.target.value)}
-                                placeholder="Date in BS (yyyy-mm-dd)"
-                            />
-                        </div>
-                        <div className="flex   flex-col ">
-                            <h2 className="text-md font-semibold">End Date</h2>
-                            <input
-                                className="w-48 p-2 rounded border-2"
-                                type="text"
-                                onChange={(e) => setEndDate(e.target.value)}
-                                placeholder="BS(yyyy-mm-dd)"
-                            />
-                        </div>
-                        <div className="flex   flex-col ">
-                            <h2 className="text-md font-semibold">
-                                Filter by Month
-                            </h2>
-                            <Dropdown
-                                options={monthDropdown}
-                                value={monthSelection}
-                                onChange={(option) => setMonthSelection(option)}
-                            />
-                        </div>
-                        <div className="flex   flex-col ">
-                            <h2 className="text-md font-semibold">
-                                Filter by Year
-                            </h2>
-                            <Dropdown
-                                options={yearDropdown}
-                                value={yearSelection}
-                                onChange={(option) => setYearSelection(option)}
-                            />
+                    <div className="flex gap-3 flex-wrap">
+                        <button
+                            className="rounded-md bg-blue-600 px-3 py-2 w-36 text-white border-none hover:bg-blue-700 font-semibold"
+                            onClick={attendIn}
+                        >
+                            Attend In
+                        </button>
+                        <button
+                            className="rounded-md bg-blue-600 px-3 py-2 w-36 text-white border-none hover:bg-blue-700 font-semibold"
+                            onClick={attendOut}
+                        >
+                            Attend Out
+                        </button>
+                    </div>
+                    <div className="flex flex-row gap-4 items-end flex-wrap ">
+                        <>
+                            <div className="flex   flex-col">
+                                <h2 className="text-md font-semibold">
+                                    Start Date
+                                </h2>
+                                <input
+                                    className="w-48 p-2 rounded border-2 "
+                                    type="text"
+                                    onChange={handleStartDateChange}
+                                    placeholder="Date in BS (yyyy-mm-dd)"
+                                />
+                            </div>
+                            <div className="flex   flex-col ">
+                                <h2 className="text-md font-semibold">
+                                    End Date
+                                </h2>
+                                <input
+                                    className="w-48 p-2 rounded border-2"
+                                    type="text"
+                                    onChange={handleEndDateChange}
+                                    placeholder="BS(yyyy-mm-dd)"
+                                />
+                            </div>
+                        </>
+                        <div className="flex gap-4 items-end ">
+                            <div className="flex  flex-col ">
+                                <h2 className="text-md font-semibold">
+                                    Filter by Month
+                                </h2>
+                                <Dropdown
+                                    options={monthDropdown}
+                                    value={monthSelection}
+                                    onChange={(option) =>
+                                        setMonthSelection(option)
+                                    }
+                                />
+                            </div>
+                            <div className="flex   flex-col ">
+                                <h2 className="text-md font-semibold">
+                                    Filter by Year
+                                </h2>
+                                <Dropdown
+                                    options={yearDropdown}
+                                    value={yearSelection}
+                                    onChange={(option) =>
+                                        setYearSelection(option)
+                                    }
+                                />
+                            </div>
+                            <button
+                                className=" bg-red-500 border-none h-fit text-white rounded w-[40px] h-[40px]"
+                                title="Clear filter"
+                                onClick={handleClearFilter}
+                            >
+                                <i className="bx bx-trash text-lg" />
+                            </button>
                         </div>
 
                         <button
                             onClick={handleSearch}
-                            className="px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-800 transition-all duration-300"
+                            className="rounded-md bg-blue-600 px-3 py-2 w-36 text-white border-none hover:bg-blue-700 font-semibold h-fit "
                         >
                             Search
                         </button>
@@ -177,7 +257,7 @@ function GetAttendance() {
                     </div>
 
                     <div>
-                        <table className="text-sm w-full divide-y border-spacing-x-4 hidden min-[750px]:table min-[750px]:table-auto divide-gray-200">
+                        <table className=" w-full divide-y border-spacing-x-4 hidden min-[750px]:table min-[750px]:table-auto divide-gray-200">
                             <thead>
                                 <tr>
                                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -189,9 +269,9 @@ function GetAttendance() {
                                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date
                                     </th>
-                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    {/* <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Remarks
-                                    </th>
+                                    </th> */}
                                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Time online
                                     </th>
@@ -211,10 +291,10 @@ function GetAttendance() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredData.map((data, index) => {
+                                    currentRows.map((data, index) => {
                                         return (
                                             <AttendanceTableRow
-                                                key={data.AttendenceId}
+                                                key={data.AttendanceId}
                                                 handleDataChange={
                                                     handleDataChange
                                                 }
@@ -229,37 +309,11 @@ function GetAttendance() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex justify-between items-center mt-4">
-                        <button
-                            disabled={currentPage === 1}
-                            onClick={() => setCurrentPage((prev) => prev - 1)}
-                            className="p-2 border rounded disabled:bg-blue-300 bg-blue-600 disabled:hover:bg-blue-300 text-white hover:bg-blue-800 "
-                        >
-                            Previous
-                        </button>
-                        <div className="flex gap-2">
-                            {Array.from({ length: totalPages }, (_, idx) => (
-                                <button
-                                    key={idx + 1}
-                                    onClick={() => setCurrentPage(idx + 1)}
-                                    className={`p-2 border rounded ${
-                                        currentPage === idx + 1
-                                            ? "bg-blue-600 text-white"
-                                            : "hover:bg-blue-800 hover:text-white"
-                                    }`}
-                                >
-                                    {idx + 1}
-                                </button>
-                            ))}
-                        </div>
-                        <button
-                            disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage((prev) => prev + 1)}
-                            className="p-2 border rounded disabled:bg-blue-300 bg-blue-600 disabled:hover:bg-blue-300 text-white hover:bg-blue-800"
-                        >
-                            Next
-                        </button>
-                    </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        totalPages={totalPages}
+                    />
                 </div>
             )}
         </>
