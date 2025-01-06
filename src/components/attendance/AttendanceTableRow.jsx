@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import customAxios from "../../utils/http";
-import { showToast } from "../../utils/ReactToast";
-import handleCatchError from "../../utils/handleCatchError";
+// import { Link, useNavigate } from "react-router-dom";
+// import customAxios from "../../utils/http";
+// import { showToast } from "../../utils/ReactToast";
+// import handleCatchError from "../../utils/handleCatchError";
 import DeleteItem from "../DeleteItem";
 // import { createTokenizedID } from '../../utils/encryption';
 
-function AttendanceTableRow({ index, data, handleDataChange,key }) {
-    const navigate = useNavigate();
+function AttendanceTableRow({ index, data, handleDataChange }) {
+    // const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [tokenizedId, setTokenizedId] = useState("");
+    // const [tokenizedId, setTokenizedId] = useState("");
 
-    useEffect(() => {
-        const tokenizedId = data?.TypeId
-            ? createTokenizedID(data.TypeId.toString())
-            : "";
-        setTokenizedId(tokenizedId);
-    }, []);
+    // useEffect(() => {
+    //     const tokenizedId = data?.TypeId
+    //         ? createTokenizedID(data.TypeId.toString())
+    //         : "";
+    //     setTokenizedId(tokenizedId);
+    // }, []);
 
     const handleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -39,28 +39,28 @@ function AttendanceTableRow({ index, data, handleDataChange,key }) {
     // }
     return (
         <>
-            <tr key={key}>
+            <tr>
                 <td className="px-3 py-2 whitespace-nowrap">{index + 1}</td>
-                <td className="px-3 py-2 whitespace-nowrap cursor-pointer">
+                <td className="px-3 py-2 whitespace-nowrap cursor-pointer text-ellipsis">
                     {data?.FullName?.length > 15
                         ? `${data?.FullName?.slice(0, 15)} ...`
                         : data.FullName}
-                    Test
+                    {data.FullName && "Test name"}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap cursor-pointer">
                     {data?.DateBs}
                 </td>
-                <td className="px-3 py-2 whitespace-nowrap ">
+                {/* <td className="px-3 py-2 whitespace-nowrap text-ellipsis">
                     {data?.Remarks}
-                </td>
+                </td> */}
                 <td className="px-3 py-2 whitespace-nowrap ">
-                  {data?.OutTime +" to "+ data?.InTime}
+                  { data.OutTime?data?.InTime +" to "+data?.OutTime :data?.InTime +" to Present"}
                   </td>
                 <td className="px-3 py-2 whitespace-nowrap ">
                     <span
-                        className={`p-4 w-full inline-flex justify-center text-base leading-5 font-semibold rounded-full ${
-                            data?.OutTime ? "bg-red-200" : "bg-green-100"
-                        } text-black`}
+                        className={`py-2 px-4 w-fit inline-flex justify-center text-base leading-5 font-semibold rounded-md ${
+                            data?.OutTime ? "bg-red-500" : "bg-green-500"
+                        } text-white`}
                     >
                         {data?.OutTime ? "Offline" : "Online"}
                     </span>
