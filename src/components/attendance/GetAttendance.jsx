@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../utils/Loader";
 import AttendanceTableRow from "./AttendanceTableRow";
 import Pagination from "../../utils/Pagination";
-import Dropdown from "../../utils/Dropdown";
 
 function GetAttendance() {
     const navigate = useNavigate();
@@ -23,42 +22,14 @@ function GetAttendance() {
     const [rowsPerPage] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredData, setFilteredData] = useState([]);
-    const [monthSelection, setMonthSelection] = useState(null);
-    const [yearSelection, setYearSelection] = useState(null);
-
-    const monthDropdown = [
-        { label: "Baisakh", value: "01" },
-        { label: "Jestha", value: "02" },
-        { label: "Ashad", value: "03" },
-        { label: "Shrawan", value: "04" },
-        { label: "Bhadra", value: "05" },
-        { label: "Ashwin", value: "06" },
-        { label: "Kartik", value: "07" },
-        { label: "Mangshir", value: "08" },
-        { label: "Poush", value: "09" },
-        { label: "Magh", value: "10" },
-        { label: "Falgun", value: "11" },
-        { label: "Chaitra", value: "12" },
-    ];
-
-    const generateYearDropdown = (startYear, endYear) => {
-        const years = [];
-        for (let year = endYear; year >= startYear; year--) {
-            years.push({ label: year.toString(), value: year.toString() });
-        }
-        return years;
-    };
-
-    const yearDropdown = generateYearDropdown(
-        2080,
-        Number(new NepaliDate().format("YYYY"))
-    );
-
+  
     // Fetch data from the API
     const fetchAttendance = async () => {
         try {
             setIsLoading(true);
-            const response = await customAxios.get(`/DailyAttendance/GetList/${endDate}/${startDate}`);
+            const response = await customAxios.get(
+                `/DailyAttendance/GetList/${endDate}/${startDate}`
+            );
             setDatas(response.data);
             setFilteredData(response.data);
             console.log(response.data);
@@ -119,39 +90,6 @@ function GetAttendance() {
         setEndDate(e.target.value);
     };
 
-    const filterData = (data) => {
-        let updatedData = [...data];
-        if (monthSelection && yearSelection) {
-            updatedData = datas.filter((item) => {
-                const date = new NepaliDate(item.DateBs);
-                return (
-                    date.format("MM") === monthSelection.value &&
-                    date.format("YYYY") === yearSelection.value
-                );
-            });
-        } else if (monthSelection) {
-            updatedData = datas.filter((item) => {
-                const date = new NepaliDate(item.DateBs);
-                return date.format("MM") === monthSelection.value;
-            });
-        } else if (yearSelection) {
-            updatedData = datas.filter((item) => {
-                const date = new NepaliDate(item.DateBs);
-                return date.format("YYYY") === yearSelection.value;
-            });
-        }
-        setFilteredData(updatedData);
-        setCurrentPage(1);
-        console.log(updatedData);
-    };
-    const handleClearFilter = () => {
-        setMonthSelection(null);
-        setYearSelection(null);
-    };
-
-    useEffect(() => {
-        filterData(datas);
-    }, [monthSelection, yearSelection]);
     useEffect(() => {
         fetchAttendance();
     }, [search]);
@@ -207,39 +145,6 @@ function GetAttendance() {
                                 />
                             </div>
                         </>
-                        <div className="flex gap-4 items-end ">
-                            <div className="flex  flex-col ">
-                                <h2 className="text-md font-semibold">
-                                    Filter by Month
-                                </h2>
-                                <Dropdown
-                                    options={monthDropdown}
-                                    value={monthSelection}
-                                    onChange={(option) =>
-                                        setMonthSelection(option)
-                                    }
-                                />
-                            </div>
-                            <div className="flex   flex-col ">
-                                <h2 className="text-md font-semibold">
-                                    Filter by Year
-                                </h2>
-                                <Dropdown
-                                    options={yearDropdown}
-                                    value={yearSelection}
-                                    onChange={(option) =>
-                                        setYearSelection(option)
-                                    }
-                                />
-                            </div>
-                            <button
-                                className=" bg-red-500 border-none h-fit text-white rounded w-[40px] h-[40px]"
-                                title="Clear filter"
-                                onClick={handleClearFilter}
-                            >
-                                <i className="bx bx-trash text-lg" />
-                            </button>
-                        </div>
 
                         <button
                             onClick={handleSearch}
