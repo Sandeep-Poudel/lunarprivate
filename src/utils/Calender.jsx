@@ -2,15 +2,19 @@ import { useState, useRef, useEffect } from "react";
 import NepaliDate from "nepali-date-converter";
 import customAxios from "./http";
 
-function Calender({ language = "np", restrict = false }) {
+function Calender({ language = "np", restrict = false, getDate, defaultDate }) {
     const [isOpen, setIsOpen] = useState(false);
     const [dates, setDates] = useState([]);
 
     const [currentMonth, setCurrentMonth] = useState(
-        Number(new NepaliDate().format("MM"))
+        defaultDate
+            ? Number(defaultDate.month)
+            : Number(new NepaliDate().format("MM"))
     );
     const [currentYear, setCurrentYear] = useState(
-        Number(new NepaliDate().format("YYYY"))
+        defaultDate
+            ? Number(defaultDate.year)
+            : Number(new NepaliDate().format("YYYY"))
     );
     const [today, setToday] = useState({
         month: Number(new NepaliDate().format("MM")),
@@ -20,7 +24,9 @@ function Calender({ language = "np", restrict = false }) {
     const [selectedDate, setSelectedDate] = useState({
         year: currentYear,
         month: currentMonth,
-        day: Number(new NepaliDate().format("DD")),
+        day: defaultDate
+            ? Number(defaultDate.day)
+            : Number(new NepaliDate().format("DD")),
     });
     const [firstDay, setFirstDay] = useState(new Date().getDay());
 
@@ -97,12 +103,7 @@ function Calender({ language = "np", restrict = false }) {
     };
 
     const handleClick = async () => {
-        setIsOpen((prev) => {
-            if (!prev) fetchDays();
-            return !prev;
-        });
-        console.log(generateCalendarDays(firstDay, dates.length));
-        console.log(dates);
+        setIsOpen((prev) => !prev);
     };
 
     const updateMonth = async (direction) => {
@@ -122,11 +123,18 @@ function Calender({ language = "np", restrict = false }) {
 
     useEffect(() => {
         fetchDays();
+        console.log(currentMonth, currentYear);
     }, [currentYear, currentMonth]);
 
     const handleClickDay = (day) => {
         if (!day) return;
         setSelectedDate({ year: currentYear, month: currentMonth, day: day });
+        getDate({
+            year: selectedDate.year.toString(),
+            month: currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString(),
+            day: day < 10 ? `0${day}` : day.toString(),
+        });
+        setIsOpen(false);
     };
 
     const generateCalendarDays = (firstDay, totalDays) => {
