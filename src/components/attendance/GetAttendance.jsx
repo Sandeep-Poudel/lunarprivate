@@ -7,30 +7,34 @@ import Loader from "../../utils/Loader";
 import AttendanceTableRow from "./AttendanceTableRow";
 import Pagination from "../../utils/Pagination";
 
+import Calender from "../../utils/Calender";
+
 function GetAttendance() {
     const navigate = useNavigate();
 
-    const [startDate, setStartDate] = useState(
-        `${new NepaliDate().format("YYYY-MM")}-01`
-    );
-    const [endDate, setEndDate] = useState(
-        new NepaliDate().format("YYYY-MM-DD")
-    );
+    const [startDate, setStartDate] = useState({
+        year: new NepaliDate().format("YYYY"),
+        month: new NepaliDate().format("MM"),
+        day:"01",
+    });
+    const [endDate, setEndDate] = useState({
+        year: new NepaliDate().format("YYYY"),
+        month: new NepaliDate().format("MM"),
+        day:new NepaliDate().format("DD"),
+    });
     const [search, setSearch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [datas, setDatas] = useState([]);
     const [rowsPerPage] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredData, setFilteredData] = useState([]);
-  
+
     // Fetch data from the API
     const fetchAttendance = async () => {
         try {
             setIsLoading(true);
             const response = await customAxios.get(
-                `/DailyAttendance/GetList/${endDate}/${startDate}`
+                `/DailyAttendance/GetList/${endDate.year}-${endDate.month}-${endDate.day}/${startDate.year}-${startDate.month}-${startDate.day}`
             );
-            setDatas(response.data);
             setFilteredData(response.data);
             console.log(response.data);
         } catch (error) {
@@ -120,28 +124,29 @@ function GetAttendance() {
                             Attend Out
                         </button>
                     </div>
+
                     <div className="flex flex-row gap-4 items-end flex-wrap ">
                         <>
                             <div className="flex   flex-col">
                                 <h2 className="text-md font-semibold">
                                     Start Date
                                 </h2>
-                                <input
-                                    className="w-48 p-2 rounded border-2 "
-                                    type="text"
-                                    onChange={handleStartDateChange}
-                                    placeholder="Date in BS (yyyy-mm-dd)"
+                                <Calender
+                                    language="np"
+                                    getDate={setStartDate}
+                                    defaultDate={startDate}
+                                    
                                 />
                             </div>
                             <div className="flex   flex-col ">
                                 <h2 className="text-md font-semibold">
                                     End Date
                                 </h2>
-                                <input
-                                    className="w-48 p-2 rounded border-2"
-                                    type="text"
-                                    onChange={handleEndDateChange}
-                                    placeholder="BS(yyyy-mm-dd)"
+                                <Calender
+                                    language="en"
+                                    getDate={setEndDate}
+                                    defaultDate={endDate}
+                                    restrict
                                 />
                             </div>
                         </>
@@ -156,8 +161,10 @@ function GetAttendance() {
 
                     <div className="mt-4">
                         <h1 className="text-xl">
-                            Attendence from <strong>{startDate}</strong> to{" "}
-                            <strong>{endDate}</strong>
+                            Attendence from{" "}
+                            <strong>{`${startDate.year}-${startDate.month}-${startDate.day}`}</strong>{" "}
+                            to{" "}
+                            <strong>{`${endDate.year}-${endDate.month}-${endDate.day}`}</strong>
                         </h1>
                     </div>
 
