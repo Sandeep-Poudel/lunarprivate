@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import NepaliDate from "nepali-date-converter";
 import customAxios from "./http";
+import { use } from "react";
 
 function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,10 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
             : Number(new NepaliDate().format("DD")),
     });
     const [renderedDays, setRenderedDays] = useState([]);
+    const [monthInput, setMonthInput] = useState(currentMonth);
+    const [yearInput, setYearInput] = useState(currentYear);
+    const [toggleMonth, setToggleMonth] = useState(false);
+    const [toggleYear, setToggleYear] = useState(false);
 
     const divElemt = useRef();
 
@@ -170,6 +175,88 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
         currentMonth === today.month
     );
 
+    const fixMonth = () => {
+        if (monthInput >= 1 && monthInput <= 12) {
+            if (
+                restrict &&
+                currentYear === today.year &&
+                monthInput > today.month
+            ) {
+                setCurrentMonth(today.month);
+                setMonthInput(today.month);
+                setCurrentYear(today.year);
+            } else {
+                setCurrentMonth(Number(monthInput));
+            }
+            setToggleMonth(false);
+        } else {
+            setMonthInput(currentMonth);
+            setToggleMonth(false);
+        }
+    };
+
+    const monthField = !editable ? (
+        <p>{monthLabels[currentMonth - 1]}</p>
+    ) : !toggleMonth ? (
+        <p onClick={() => setToggleMonth((prev) => !prev)}>
+            {monthLabels[currentMonth - 1]}
+        </p>
+    ) : (
+        <input
+            value={monthInput}
+            autoFocus
+            className="border-none w-6 text-center outline-none"
+            onChange={(e) => setMonthInput(e.target.value)}
+            onBlur={() => {
+                fixMonth();
+            }}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    fixMonth();
+                }
+            }}
+        />
+    );
+
+    const fixYear = () => {
+        if (yearInput >= 2000 && yearInput <= 2100) {
+            if (
+                yearInput > today.year ||
+                (yearInput == today.year && currentMonth > today.month)
+            ) {
+                setCurrentMonth(today.month);
+                setCurrentYear(today.year);
+            } else {
+                setCurrentYear(Number(yearInput));
+            }
+            setToggleYear(false);
+        } else {
+            setYearInput(currentYear);
+            setToggleYear(false);
+        }
+    };
+
+    const yearField = !editable ? (
+        <p>{currentYear}</p>
+    ) : !toggleYear ? (
+        <p onClick={() => setToggleYear((prev) => !prev)}>{currentYear}</p>
+    ) : (
+        <input
+            value={yearInput}
+            autoFocus
+            className="border-none w-16 text-center outline-none"
+            onChange={(e) => setYearInput(e.target.value)}
+            onBlur={() => {
+                fixYear();
+            }}
+            onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    fixYear();
+                }
+            }}
+        />
+    );
+
     return (
         <div ref={divElemt} className="relative w-48">
             <div
@@ -192,10 +279,11 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
                                 loading ? null : updateMonth("prev")
                             }
                         />
+
                         <div className="flex flex-row border px-3 py-1 gap-3">
-                            <p>{monthLabels[currentMonth - 1]}</p>
+                            {monthField}
                             <div className="border-r"></div>
-                            <p>{currentYear}</p>
+                            {yearField}
                         </div>
                         <i
                             className={`bx  p-2  ${
@@ -236,5 +324,4 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
         </div>
     );
 }
-
 export default Calender;
