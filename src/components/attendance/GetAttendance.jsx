@@ -87,12 +87,7 @@ function GetAttendance() {
         console.log("End Date:", endDate);
     };
 
-    const handleStartDateChange = (e) => {
-        setStartDate(e.target.value);
-    };
-    const handleEndDateChange = (e) => {
-        setEndDate(e.target.value);
-    };
+   
 
     useEffect(() => {
         fetchAttendance();
@@ -135,6 +130,7 @@ function GetAttendance() {
                                     language="np"
                                     getDate={setStartDate}
                                     defaultDate={startDate}
+                                    restrict
                                     
                                 />
                             </div>
@@ -147,6 +143,7 @@ function GetAttendance() {
                                     getDate={setEndDate}
                                     defaultDate={endDate}
                                     restrict
+                                    editable
                                 />
                             </div>
                         </>
