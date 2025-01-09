@@ -3,7 +3,13 @@ import NepaliDate from "nepali-date-converter";
 import customAxios from "./http";
 import { use } from "react";
 
-function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
+function Calender({
+    restrict = false,
+    getDate,
+    defaultDate,
+    editable = true,
+    language = "en",
+}) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(
@@ -52,22 +58,41 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
         };
     }, []);
 
-    const monthLabels = [
-        "Baisakh",
-        "Jestha",
-        "Ashadh",
-        "Shrawan",
-        "Bhadra",
-        "Ashwin",
-        "Kartik",
-        "Mangsir",
-        "Poush",
-        "Magh",
-        "Falgun",
-        "Chaitra",
-    ];
+    const monthLabels =
+        language == "en"
+            ? [
+                  "Baisakh",
+                  "Jestha",
+                  "Ashadh",
+                  "Shrawan",
+                  "Bhadra",
+                  "Ashwin",
+                  "Kartik",
+                  "Mangsir",
+                  "Poush",
+                  "Magh",
+                  "Falgun",
+                  "Chaitra",
+              ]
+            : [
+                  "बैशाख",
+                  "जेठ",
+                  "असार",
+                  "साउन",
+                  "भदौ",
+                  "आश्विन",
+                  "कार्तिक",
+                  "मंसिर",
+                  "पुष",
+                  "माघ",
+                  "फागुन",
+                  "चैत्र",
+              ];
 
-    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const weekdayLabels =
+        language == "en"
+            ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            : ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"];
 
     const formatDate = ({ year, month, day }) => {
         const formattedDay = day < 10 ? `0${day}` : day;
@@ -167,6 +192,8 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
 
     useEffect(() => {
         fetchDays();
+        setYearInput(currentYear);
+        setMonthInput(currentMonth);
     }, [currentYear, currentMonth]);
 
     const allowNextMonth = !(
@@ -198,7 +225,7 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
     const monthField = !editable ? (
         <p>{monthLabels[currentMonth - 1]}</p>
     ) : !toggleMonth ? (
-        <p onClick={() => setToggleMonth((prev) => !prev)}>
+        <p onClick={() => setToggleMonth((prev) => !prev)} className="cursor-pointer">
             {monthLabels[currentMonth - 1]}
         </p>
     ) : (
@@ -239,7 +266,7 @@ function Calender({ restrict = false, getDate, defaultDate, editable = true }) {
     const yearField = !editable ? (
         <p>{currentYear}</p>
     ) : !toggleYear ? (
-        <p onClick={() => setToggleYear((prev) => !prev)}>{currentYear}</p>
+        <p onClick={() => setToggleYear((prev) => !prev)} className="cursor-pointer">{currentYear}</p>
     ) : (
         <input
             value={yearInput}

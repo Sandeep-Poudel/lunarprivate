@@ -131,6 +131,7 @@ function GetAttendance() {
                                     getDate={setStartDate}
                                     defaultDate={startDate}
                                     restrict
+                                    editable={false}
                                     
                                 />
                             </div>
