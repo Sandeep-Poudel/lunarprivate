@@ -129,6 +129,18 @@ const Sidebar = () => {
             <i className="bx bxs-calendar mr-2 text-2xl" />
             Attendence
           </NavLink>
+
+          <NavLink
+            to="/Document"
+            className={({ isActive }) =>
+              `flex items-center cursor-pointer py-4 transition-all duration-300 hover:translate-x-1 ${
+                isActive ? "text-indigo-800 font-bold" : "text-gray-600"
+              }`
+            }
+          >
+            <i className="bx bx-file mr-2 text-2xl" />
+            Document
+          </NavLink>
           
         </div>
 
