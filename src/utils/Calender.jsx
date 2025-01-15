@@ -1,47 +1,69 @@
-import { useState, useRef, useEffect } from "react";
-import NepaliDate from "nepali-date-converter";
+import { useState, useRef, useEffect, useCallback } from "react";
 import customAxios from "./http";
-import { use } from "react";
 
-function Calender({
-    restrict = false,
-    getDate,
-    defaultDate,
-    editable = true,
-    language = "en",
-}) {
+function Calender({ restrict = false, getDate, value, editable = true }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [toggleMonth, setToggleMonth] = useState(false);
+    const [toggleYear, setToggleYear] = useState(false);
+    const [firstDay, setFirstDay] = useState(0);
+    const [totalDays, setTotalDays] = useState(0);
+
+    // State for today, current month/year, and selected date
+    const [today, setToday] = useState({});
     const [currentMonth, setCurrentMonth] = useState(
-        defaultDate
-            ? Number(defaultDate.month)
-            : Number(new NepaliDate().format("MM"))
+        Number(value?.month !== 0 ? value?.month : 1)
     );
     const [currentYear, setCurrentYear] = useState(
-        defaultDate
-            ? Number(defaultDate.year)
-            : Number(new NepaliDate().format("YYYY"))
+        Number(value?.year !== 0 ? value?.year : 2080)
     );
-    const today = {
-        month: Number(new NepaliDate().format("MM")),
-        year: Number(new NepaliDate().format("YYYY")),
-        day: Number(new NepaliDate().format("DD")),
-    };
-
     const [selectedDate, setSelectedDate] = useState({
-        year: currentYear,
-        month: currentMonth,
-        day: defaultDate
-            ? Number(defaultDate.day)
-            : Number(new NepaliDate().format("DD")),
+        year: Number(value?.year !== 0 ? value?.year : currentYear),
+        month: Number(value?.month !== 0 ? value?.month : currentMonth),
+        day: Number(value?.day !== 0 ? value?.day : 1),
     });
+
     const [renderedDays, setRenderedDays] = useState([]);
     const [monthInput, setMonthInput] = useState(currentMonth);
     const [yearInput, setYearInput] = useState(currentYear);
-    const [toggleMonth, setToggleMonth] = useState(false);
-    const [toggleYear, setToggleYear] = useState(false);
+    const [days, setDays] = useState([]);
 
     const divElemt = useRef();
+
+    const fetchTodayDate = useCallback(async () => {
+        try {
+            const response = await customAxios.get(
+                `Daylist/GetItem/${new Date().getFullYear()}-${
+                    new Date().getMonth() + 1
+                }-${new Date().getDate()}`
+            );
+
+            const data = response.data;
+            setToday({ year: data.Year, month: data.Month, day: data.Day });
+            if (!value.month && !value.year) {
+                setCurrentMonth(data.Month);
+                setCurrentYear(data.Year);
+            }
+            console.log(data);
+        } catch (error) {
+            console.error("Failed to fetch today's date:", error);
+        }
+    }, []);
+    useEffect(() => {
+        fetchTodayDate(); // Fetch today's date on mount
+    }, [fetchTodayDate]);
+
+    useEffect(() => {
+        if (value) {
+            setCurrentMonth(Number(value.month));
+            setCurrentYear(Number(value.year));
+            setSelectedDate({
+                year: Number(value.year),
+                month: Number(value.month),
+                day: Number(value.day),
+            });
+        }
+    }, [value]);
 
     useEffect(() => {
         const handler = (event) => {
@@ -54,45 +76,26 @@ function Calender({
         };
         document.addEventListener("click", handler, true);
         return () => {
-            document.removeEventListener("click", handler);
+            document.removeEventListener("click", handler, true);
         };
     }, []);
 
-    const monthLabels =
-        language == "en"
-            ? [
-                  "Baisakh",
-                  "Jestha",
-                  "Ashadh",
-                  "Shrawan",
-                  "Bhadra",
-                  "Ashwin",
-                  "Kartik",
-                  "Mangsir",
-                  "Poush",
-                  "Magh",
-                  "Falgun",
-                  "Chaitra",
-              ]
-            : [
-                  "बैशाख",
-                  "जेठ",
-                  "असार",
-                  "साउन",
-                  "भदौ",
-                  "आश्विन",
-                  "कार्तिक",
-                  "मंसिर",
-                  "पुष",
-                  "माघ",
-                  "फागुन",
-                  "चैत्र",
-              ];
+    const monthLabels = [
+        "Baisakh",
+        "Jestha",
+        "Ashadh",
+        "Shrawan",
+        "Bhadra",
+        "Ashwin",
+        "Kartik",
+        "Mangsir",
+        "Poush",
+        "Magh",
+        "Falgun",
+        "Chaitra",
+    ];
 
-    const weekdayLabels =
-        language == "en"
-            ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-            : ["आइत", "सोम", "मंगल", "बुध", "बिहि", "शुक्र", "शनि"];
+    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     const formatDate = ({ year, month, day }) => {
         const formattedDay = day < 10 ? `0${day}` : day;
@@ -116,7 +119,7 @@ function Calender({
     const handleClickDay = (day) => {
         setSelectedDate({ year: currentYear, month: currentMonth, day: day });
         getDate({
-            year: selectedDate.year.toString(),
+            year: currentYear.toString(),
             month:
                 currentMonth < 10
                     ? `0${currentMonth}`
@@ -126,18 +129,10 @@ function Calender({
         setIsOpen(false);
     };
 
-    const fetchDays = async () => {
-        try {
-            setLoading(true);
-            const response = await customAxios.get(
-                `DayList/GetList/${currentYear}/${currentMonth}`
-            );
-            console.log(response.data);
-            const firstDay = new Date(response.data[0].EnglishDate).getDay();
-            const totalDays = response.data.length;
-            const days = generateCalendarDays(firstDay, totalDays);
-            console.log(days);
-            const renderedData = days.map((day, index) => {
+    const makeDays = async (firstDay, totalDays) => {
+        setDays(generateCalendarDays(firstDay, totalDays));
+        setRenderedDays(
+            days.map((day, index) => {
                 return (
                     <div
                         key={index}
@@ -166,9 +161,25 @@ function Calender({
                         {day}
                     </div>
                 );
-            });
-            console.log(renderedData);
-            setRenderedDays(renderedData);
+            })
+        );
+    };
+
+    useEffect(() => {
+        makeDays(firstDay, totalDays);
+    }, [days]);
+
+    const fetchDays = async () => {
+        try {
+            setLoading(true);
+            const response = await customAxios.get(
+                `DayList/GetList/${currentYear}/${currentMonth}`
+            );
+            console.log("Daylist of a month: ", response.data);
+            setFirstDay(new Date(response.data[0].EnglishDate).getDay());
+            console.log("first day of the month", firstDay);
+            setTotalDays(response.data.length);
+            await makeDays(firstDay, totalDays);
         } catch (error) {
             console.log(error);
         } finally {
@@ -191,18 +202,31 @@ function Calender({
     };
 
     useEffect(() => {
-        fetchDays();
-        setYearInput(currentYear);
-        setMonthInput(currentMonth);
-    }, [currentYear, currentMonth]);
+        if (currentMonth && currentYear) {
+            fetchDays();
+            console.log(
+                " current month and currentyear",
+                currentMonth,
+                currentYear
+            );
+            setMonthInput(currentMonth);
+            setYearInput(currentYear);
+        }
+    }, [currentMonth, currentYear]);
 
-    const allowNextMonth = !(
-        restrict &&
-        currentYear === today.year &&
-        currentMonth === today.month
-    );
+    const allowNextMonth =
+        today.year > 0 &&
+        today.month > 0 &&
+        today.day > 0 &&
+        !(
+            restrict &&
+            currentYear === today.year &&
+            currentMonth === today.month
+        );
 
+    console.log("a;llownext month?:", allowNextMonth);
     const fixMonth = () => {
+        console.log("fixing month", currentYear);
         if (monthInput >= 1 && monthInput <= 12) {
             if (
                 restrict &&
@@ -225,7 +249,10 @@ function Calender({
     const monthField = !editable ? (
         <p>{monthLabels[currentMonth - 1]}</p>
     ) : !toggleMonth ? (
-        <p onClick={() => setToggleMonth((prev) => !prev)} className="cursor-pointer">
+        <p
+            onClick={() => setToggleMonth((prev) => !prev)}
+            className="cursor-pointer"
+        >
             {monthLabels[currentMonth - 1]}
         </p>
     ) : (
@@ -247,11 +274,21 @@ function Calender({
 
     const fixYear = () => {
         if (yearInput >= 2000 && yearInput <= 2100) {
+            console.log(
+                "fixing year",
+                currentYear,
+                today.year,
+                yearInput,
+                currentMonth,
+                today.month
+            );
             if (
-                yearInput > today.year ||
-                (yearInput == today.year && currentMonth > today.month)
+                restrict &&
+                (yearInput > today.year ||
+                    (yearInput == today.year && currentMonth > today.month))
             ) {
                 setCurrentMonth(today.month);
+                setYearInput(today.year);
                 setCurrentYear(today.year);
             } else {
                 setCurrentYear(Number(yearInput));
@@ -264,9 +301,14 @@ function Calender({
     };
 
     const yearField = !editable ? (
-        <p>{currentYear}</p>
+        (console.log("yearField", currentYear), (<p>{currentYear}</p>))
     ) : !toggleYear ? (
-        <p onClick={() => setToggleYear((prev) => !prev)} className="cursor-pointer">{currentYear}</p>
+        <p
+            onClick={() => setToggleYear((prev) => !prev)}
+            className="cursor-pointer"
+        >
+            {currentYear}
+        </p>
     ) : (
         <input
             value={yearInput}
@@ -290,6 +332,12 @@ function Calender({
                 className="flex justify-between items-center cursor-pointer border rounded px-3 py-2 shadow bg-white w-full select-none"
                 onClick={() => setIsOpen((prev) => !prev)}
             >
+                {console.log(
+                    "selecred date year,month,day",
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day
+                )}
                 {selectedDate.year ? formatDate(selectedDate) : "Select ..."}
                 <i
                     className={`bx ${

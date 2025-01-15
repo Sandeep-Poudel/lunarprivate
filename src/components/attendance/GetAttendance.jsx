@@ -13,25 +13,28 @@ function GetAttendance() {
     const navigate = useNavigate();
 
     const [startDate, setStartDate] = useState({
-        year: new NepaliDate().format("YYYY"),
-        month: new NepaliDate().format("MM"),
-        day:"01",
+        year: Number(2080),
+        month: Number(1),
+        day: Number(1),
     });
     const [endDate, setEndDate] = useState({
-        year: new NepaliDate().format("YYYY"),
-        month: new NepaliDate().format("MM"),
-        day:new NepaliDate().format("DD"),
+        year: Number(2081),
+        month: Number(1),
+        day: Number(1),
     });
     const [search, setSearch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [rowsPerPage] = useState(20);
     const [currentPage, setCurrentPage] = useState(1);
     const [filteredData, setFilteredData] = useState([]);
-
+    console.log("Start Date:", startDate, "End Date:", endDate);
     // Fetch data from the API
     const fetchAttendance = async () => {
         try {
             setIsLoading(true);
+            if (startDate?.year === 0 || endDate?.year === 0) {
+                return;
+            }
             const response = await customAxios.get(
                 `/DailyAttendance/GetList/${endDate.year}-${endDate.month}-${endDate.day}/${startDate.year}-${startDate.month}-${startDate.day}`
             );
@@ -75,19 +78,9 @@ function GetAttendance() {
 
     const handleSearch = () => {
         // Handle search logic here
-        if (startDate === "") {
-            setStartDate(`${new NepaliDate().format("YYYY-MM")}-01`);
-            return;
-        }
-        if (endDate === "") {
-            setEndDate(`${new NepaliDate().format("YYYY-MM-DD")}`);
-        }
         setSearch(!search);
-        console.log("Start Date:", startDate);
-        console.log("End Date:", endDate);
+       
     };
-
-   
 
     useEffect(() => {
         fetchAttendance();
@@ -127,12 +120,10 @@ function GetAttendance() {
                                     Start Date
                                 </h2>
                                 <Calender
-                                    language="np"
                                     getDate={setStartDate}
-                                    defaultDate={startDate}
+                                    value={startDate}
                                     restrict
-                                    editable={false}
-                                    
+                                    editable
                                 />
                             </div>
                             <div className="flex   flex-col ">
@@ -140,9 +131,8 @@ function GetAttendance() {
                                     End Date
                                 </h2>
                                 <Calender
-                                    language="en"
                                     getDate={setEndDate}
-                                    defaultDate={endDate}
+                                    value={endDate}
                                     restrict
                                     editable
                                 />
