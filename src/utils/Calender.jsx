@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import customAxios from "./http";
 
-function Calender({ restrict = false, getDate, value, editable = true }) {
+function Calender({ restrict = false, setValue, value, editable = true }) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [toggleMonth, setToggleMonth] = useState(false);
     const [toggleYear, setToggleYear] = useState(false);
     const [firstDay, setFirstDay] = useState(0);
     const [totalDays, setTotalDays] = useState(0);
+    const [allowNextMonth, setAllowNextMonth] = useState(false);
 
     // State for today, current month/year, and selected date
     const [today, setToday] = useState({});
@@ -49,6 +50,7 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
             console.error("Failed to fetch today's date:", error);
         }
     }, []);
+
     useEffect(() => {
         fetchTodayDate(); // Fetch today's date on mount
     }, [fetchTodayDate]);
@@ -118,7 +120,7 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
 
     const handleClickDay = (day) => {
         setSelectedDate({ year: currentYear, month: currentMonth, day: day });
-        getDate({
+        setValue({
             year: currentYear.toString(),
             month:
                 currentMonth < 10
@@ -129,23 +131,28 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
         setIsOpen(false);
     };
 
-    const makeDays = async (firstDay, totalDays) => {
-        setDays(generateCalendarDays(firstDay, totalDays));
+    const makeDays = async () => {
         setRenderedDays(
             days.map((day, index) => {
                 return (
                     <div
                         key={index}
-                        className={`${day && "hover:bg-gray-200"} ${
+                        className={` ${
                             day
                                 ? restrict &&
                                   day > today.day &&
                                   currentMonth == today.month &&
                                   currentYear == today.year
                                     ? "cursor-not-allowed  border bg-gray-300 hover:bg-gray-300"
-                                    : "cursor-pointer border"
+                                    : `cursor-pointer border ${
+                                          selectedDate.day == day &&
+                                          selectedDate.month == currentMonth &&
+                                          selectedDate.year == currentYear
+                                              ? "bg-blue-500 text-white hover:bg-blue-500"
+                                              : "hover:bg-gray-200"
+                                      }`
                                 : ""
-                        } p-1 text-center`}
+                        } p-1 text-center `}
                         onClick={() => {
                             day &&
                             !(
@@ -167,7 +174,7 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
 
     useEffect(() => {
         makeDays(firstDay, totalDays);
-    }, [days]);
+    }, [days, selectedDate]);
 
     const fetchDays = async () => {
         try {
@@ -176,10 +183,17 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
                 `DayList/GetList/${currentYear}/${currentMonth}`
             );
             console.log("Daylist of a month: ", response.data);
-            setFirstDay(new Date(response.data[0].EnglishDate).getDay());
-            console.log("first day of the month", firstDay);
-            setTotalDays(response.data.length);
-            await makeDays(firstDay, totalDays);
+            const firstDayValue = new Date(
+                response.data[0].EnglishDate
+            ).getDay();
+            const totalDaysValue = response.data.length;
+
+            setFirstDay(firstDayValue);
+            setTotalDays(totalDaysValue);
+
+            // Generate the calendar days after updating firstDay and totalDays
+            const newDays = generateCalendarDays(firstDayValue, totalDaysValue);
+            setDays(newDays);
         } catch (error) {
             console.log(error);
         } finally {
@@ -205,7 +219,7 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
         if (currentMonth && currentYear) {
             fetchDays();
             console.log(
-                " current month and currentyear",
+                " current month and current year",
                 currentMonth,
                 currentYear
             );
@@ -214,15 +228,18 @@ function Calender({ restrict = false, getDate, value, editable = true }) {
         }
     }, [currentMonth, currentYear]);
 
-    const allowNextMonth =
-        today.year > 0 &&
-        today.month > 0 &&
-        today.day > 0 &&
-        !(
-            restrict &&
-            currentYear === today.year &&
-            currentMonth === today.month
+    useEffect(() => {
+        setAllowNextMonth(
+            today.year > 0 &&
+                today.month > 0 &&
+                today.day > 0 &&
+                !(
+                    restrict &&
+                    currentYear === today.year &&
+                    currentMonth === today.month
+                )
         );
+    }, [today, restrict, currentYear, currentMonth]);
 
     console.log("a;llownext month?:", allowNextMonth);
     const fixMonth = () => {

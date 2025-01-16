@@ -120,7 +120,7 @@ function GetAttendance() {
                                     Start Date
                                 </h2>
                                 <Calender
-                                    getDate={setStartDate}
+                                    setValue={setStartDate}
                                     value={startDate}
                                     restrict
                                     editable
@@ -131,7 +131,7 @@ function GetAttendance() {
                                     End Date
                                 </h2>
                                 <Calender
-                                    getDate={setEndDate}
+                                    setValue={setEndDate}
                                     value={endDate}
                                     restrict
                                     editable
