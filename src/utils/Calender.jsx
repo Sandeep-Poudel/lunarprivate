@@ -16,7 +16,7 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
         Number(value?.month !== 0 ? value?.month : 1)
     );
     const [currentYear, setCurrentYear] = useState(
-        Number(value?.year !== 0 ? value?.year : 2080)
+        Number(value?.year !== 0 ? value?.year : 2081)
     );
     const [selectedDate, setSelectedDate] = useState({
         year: Number(value?.year !== 0 ? value?.year : currentYear),
@@ -45,7 +45,6 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
                 setCurrentMonth(data.Month);
                 setCurrentYear(data.Year);
             }
-            console.log(data);
         } catch (error) {
             console.error("Failed to fetch today's date:", error);
         }
@@ -182,7 +181,6 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
             const response = await customAxios.get(
                 `DayList/GetList/${currentYear}/${currentMonth}`
             );
-            console.log("Daylist of a month: ", response.data);
             const firstDayValue = new Date(
                 response.data[0].EnglishDate
             ).getDay();
@@ -218,11 +216,6 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
     useEffect(() => {
         if (currentMonth && currentYear) {
             fetchDays();
-            console.log(
-                " current month and current year",
-                currentMonth,
-                currentYear
-            );
             setMonthInput(currentMonth);
             setYearInput(currentYear);
         }
@@ -241,9 +234,7 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
         );
     }, [today, restrict, currentYear, currentMonth]);
 
-    console.log("a;llownext month?:", allowNextMonth);
     const fixMonth = () => {
-        console.log("fixing month", currentYear);
         if (monthInput >= 1 && monthInput <= 12) {
             if (
                 restrict &&
@@ -291,14 +282,7 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
 
     const fixYear = () => {
         if (yearInput >= 2000 && yearInput <= 2100) {
-            console.log(
-                "fixing year",
-                currentYear,
-                today.year,
-                yearInput,
-                currentMonth,
-                today.month
-            );
+           
             if (
                 restrict &&
                 (yearInput > today.year ||
@@ -318,7 +302,7 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
     };
 
     const yearField = !editable ? (
-        (console.log("yearField", currentYear), (<p>{currentYear}</p>))
+         <p>{currentYear}</p>
     ) : !toggleYear ? (
         <p
             onClick={() => setToggleYear((prev) => !prev)}
@@ -349,12 +333,7 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
                 className="flex justify-between items-center cursor-pointer border rounded px-3 py-2 shadow bg-white w-full select-none"
                 onClick={() => setIsOpen((prev) => !prev)}
             >
-                {console.log(
-                    "selecred date year,month,day",
-                    selectedDate.year,
-                    selectedDate.month,
-                    selectedDate.day
-                )}
+               
                 {selectedDate.year ? formatDate(selectedDate) : "Select ..."}
                 <i
                     className={`bx ${

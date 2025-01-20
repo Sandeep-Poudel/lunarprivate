@@ -1,4 +1,3 @@
-import NepaliDate from "nepali-date-converter";
 import { useState, useEffect } from "react";
 import customAxios from "../../utils/http";
 import handleCatchError from "../../utils/handleCatchError";
@@ -13,14 +12,14 @@ function GetAttendance() {
     const navigate = useNavigate();
 
     const [startDate, setStartDate] = useState({
-        year: Number(2080),
-        month: Number(1),
+        year: Number(2081),
+        month: Number(9),
         day: Number(1),
     });
     const [endDate, setEndDate] = useState({
-        year: Number(2081),
-        month: Number(1),
-        day: Number(1),
+        year: Number(),
+        month: Number(),
+        day: Number(),
     });
     const [search, setSearch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

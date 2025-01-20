@@ -36,6 +36,7 @@ function InsertFile() {
         });
       };
       reader.readAsDataURL(file); //base64
+      console.log(reader.readAsDataURL(file))
     }
   };
 

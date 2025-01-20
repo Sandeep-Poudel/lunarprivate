@@ -77,7 +77,7 @@ function InsertDocument() {
           <div className="flex justify-end">
             <button
               className="close-btn text-2xl text-indigo-700 font-extrabold hover:text-red-300"
-              onClick={() => navigate("/documentGroup")}
+              onClick={() => navigate("/document")}
             >
               X
             </button>
