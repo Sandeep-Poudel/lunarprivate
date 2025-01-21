@@ -1,4 +1,14 @@
-function Thumbnail({ file, setFile, isModelOpen }) {
+import { useState, useEffect } from "react";
+
+function Thumbnail({
+    file,
+    setFile,
+    isModelOpen,
+    toggleSelect,
+    showSelect,
+    isSelected,
+    ...rest
+}) {
     const { MediaType, FileData, FileId, FileClientDescription } = file;
 
     const findSize = (file) => {
@@ -19,8 +29,22 @@ function Thumbnail({ file, setFile, isModelOpen }) {
     };
 
     const handleDoubleClick = () => {
-        setFile(file);
-        isModelOpen(true);
+        if (!isSelected) {
+            setFile(file);
+            isModelOpen(true);
+        }
+    };
+
+    const handleClick = () => {
+        if (showSelect) {
+            toggleSelect(FileId);
+        }
+        console.log(`${FileId} : `, showSelect);
+    };
+
+    const handleSelect = (e) => {
+        toggleSelect(FileId);
+        e.stopPropagation();
     };
 
     const content = () => {
@@ -56,9 +80,20 @@ function Thumbnail({ file, setFile, isModelOpen }) {
     return (
         <div
             key={FileId}
-            className="bg-white p-3 rounded-md shadow-md w-fit relative hover:shadow-xl transition hover:scale-[101%] duration-[50ms] hover:border-gray-800 cursor-pointer"
-            onDoubleClick={handleDoubleClick}
+            className={`${
+                isSelected ? "bg-gray-300" : "bg-white"
+            } p-3 rounded-md shadow-md w-fit relative hover:shadow-xl transition hover:scale-[101%] duration-[50ms] hover:border-gray-800 cursor-pointer`}
+            onDoubleClick={isSelected?null:handleDoubleClick}
+            onClick={handleClick}
+            {...rest}
         >
+            <input
+                type="checkbox"
+                className="absolute top-1 right-1 w-5 h-5  bg-transparent "
+                checked={isSelected}
+                onClick={(e) => e.stopPropagation()}
+                onChange={handleSelect}
+            />
             <div className="flex justify-center items-center">
                 <div className="flex flex-col items-center">
                     <div className="w-[150px] overflow-hidden">{content()}</div>

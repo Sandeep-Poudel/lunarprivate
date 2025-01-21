@@ -10,6 +10,7 @@ function ViewDocument() {
     const [document, setDocument] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModelOpen, setIsModelOpen] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
     const [file, setFile] = useState({});
 
     const fetchDocument = async () => {
@@ -30,10 +31,25 @@ function ViewDocument() {
         fetchDocument();
     }, []);
 
-    const renderedContent = document.DocFiles?.map((item) => {
-        console.log(item);
-        return <Thumbnail file={item} key={item.FileId} setFile={setFile} isModelOpen={setIsModelOpen}/>;
-    });
+    const handleSelect = (fileId) => {
+        setSelectedFiles((prevSelectedFiles) => 
+            prevSelectedFiles.includes(fileId)
+                ? prevSelectedFiles.filter((id) => id !== fileId)
+                : [...prevSelectedFiles, fileId]
+        );
+    };
+
+    const renderedContent = document.DocFiles?.map((item) => (
+        <Thumbnail
+            file={item}
+            key={item.FileId}
+            setFile={setFile}
+            isModelOpen={setIsModelOpen}
+            showSelect={selectedFiles?.length > 0}
+            toggleSelect={handleSelect}
+            isSelected={selectedFiles?.includes(item.FileId)}
+        />
+    ));
 
     return (
         <>
@@ -48,7 +64,7 @@ function ViewDocument() {
                         <p className="text-sm mt-1">
                             {document.DocDescription}
                         </p>
-                        <div >
+                        <div>
                             <h2 className="text-xl font-semibold mt-4">
                                 Files
                             </h2>
@@ -57,9 +73,12 @@ function ViewDocument() {
                             </div>
                         </div>
                     </div>
-                    
-                        <FileViewModel isOpen={isModelOpen} file={file} setOpen={setIsModelOpen}/>
-                
+
+                    <FileViewModel
+                        isOpen={isModelOpen}
+                        file={file}
+                        setOpen={setIsModelOpen}
+                    />
                 </div>
             )}
         </>
