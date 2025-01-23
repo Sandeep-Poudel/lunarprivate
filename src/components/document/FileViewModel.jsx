@@ -10,7 +10,7 @@ function FileViewModel({ file, isOpen, setOpen }) {
                 return (
                     <img
                         src={FileData}
-                        className="object-cover max-w-full max-h-[70vh] h-auto w-auto rounded-md"
+                        className="object-cover  max-h-[70vh] max-w-[80vw] h-auto rounded-md"
                     />
                 );
             case "Video":
@@ -22,14 +22,14 @@ function FileViewModel({ file, isOpen, setOpen }) {
                     />
                 );
             case "Pdf":
+               
                 return (
-                  
-                <div className="object-contain flex justify-center items-center w-[400px] sm:w-[600px] md:w-[700px]  lg:w-[800px] xl:w-[1000px] h-screen">
-                    <iframe
-                        src={FileData}
-                        className=" max-w-full max-h-full h-full w-full rounded-md"
-                    />
-                </div>
+                    <div className="object-contain flex justify-center items-center w-screen h-[90vh] sm:w-[600px] h-[95vh] sm:h-[90vh] md:w-[700px]  lg:w-[800px]  xl:w-[1000px] ">
+                        <iframe
+                            src={FileData}
+                            className="h-full w-full rounded-md"
+                        />
+                    </div>
                 );
             default:
                 return (
@@ -43,7 +43,7 @@ function FileViewModel({ file, isOpen, setOpen }) {
     return (
         isOpen && (
             <Modal isOpen={isOpen} setOpen={setOpen}>
-                <div className="bg-gray-800 p-4 rounded-md text-white">
+                <div className=" rounded-md text-white">
                     <div className="w-full flex justify-center items-center">
                         {content()}
                     </div>

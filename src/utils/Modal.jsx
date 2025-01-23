@@ -16,12 +16,12 @@ function Modal({ children, setOpen }) {
     }, [setOpen]);
 
     return ReactDOM.createPortal(
-        <div
-            className="inset-0 z-[500] bg-black bg-opacity-85 flex justify-center items-center fixed"
-            onClick={() => setOpen(false)}
-        >
-            <div onClick={(e) => e.stopPropagation()}>
-                {children}
+        <div className="relative">
+            <div
+                className="inset-0 z-[500] bg-black bg-opacity-90 flex justify-center items-center fixed "
+                onClick={() => setOpen(false)}
+            >
+                <div onClick={(e) => e.stopPropagation()}>{children}</div>
             </div>
         </div>,
         document.getElementById("modal")

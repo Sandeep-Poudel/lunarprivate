@@ -32,7 +32,7 @@ function ViewDocument() {
     }, []);
 
     const handleSelect = (fileId) => {
-        setSelectedFiles((prevSelectedFiles) => 
+        setSelectedFiles((prevSelectedFiles) =>
             prevSelectedFiles.includes(fileId)
                 ? prevSelectedFiles.filter((id) => id !== fileId)
                 : [...prevSelectedFiles, fileId]
@@ -51,6 +51,25 @@ function ViewDocument() {
         />
     ));
 
+    const deleteFiles = async () => {
+        try {
+            setLoading(true);
+            console.log(selectedFiles);
+            await customAxios.delete(`/Document/RemoveFiles/${id}`, {
+                selectedFiles,
+            });
+            fetchDocument();
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const clearSelection = () => {
+        setSelectedFiles([]);
+    };
+
     return (
         <>
             {loading ? (
@@ -65,9 +84,27 @@ function ViewDocument() {
                             {document.DocDescription}
                         </p>
                         <div>
-                            <h2 className="text-xl font-semibold mt-4">
-                                Files
-                            </h2>
+                            <div className="p-2 flex justify-between items-center">
+                                <h2 className="text-xl font-semibold mt-4">
+                                    Files
+                                </h2>
+                                {selectedFiles.length > 0 && (
+                                    <div >
+                                        <button
+                                            className="bg-red-500 text-white px-2 py-1 rounded-md mx-2"
+                                            onClick={deleteFiles}
+                                        >
+                                            Delete
+                                        </button>
+                                        <button
+                                            className="bg-gray-500 text-white px-2 py-1 rounded-md mx-2"
+                                            onClick={clearSelection}
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex flex-wrap gap-4 mt-2">
                                 {renderedContent}
                             </div>
