@@ -45,6 +45,7 @@ const GetAttendance = lazy(()=>import('./components/attendance/GetAttendance'));
 const InsertDocument = lazy(()=>import('./components/document/InsertDocument'));
 const GetDocument = lazy(()=>import('./components/document/GetDocument'));
 const ViewDocument = lazy(()=>import('./components/document/ViewDocument'))
+const EditFile = lazy(()=>import('./components/document/EditFile'));
 
 //Person Category
 const GetPersonCategory = lazy(()=>import('./components/personCategory/GetPersonCategory'));
@@ -133,6 +134,7 @@ function App() {
                 <Route path='insert/:id' element={<InsertDocument/>} />
                 <Route path='addFile/:params' element={<InsertFile/>} />
                 <Route path='seeFile/:id' element={<ViewDocument/>}/>
+                <Route path='editFile/' element={<EditFile/>} />
               </Route>
 
               {/* For Person Category */}

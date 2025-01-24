@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Loader from "../../utils/Loader";
 import Thumbnail from "../../utils/Thumbnail";
 import FileViewModel from "./FileViewModel";
+import { useLocation } from "react-router-dom";
 
 function ViewDocument() {
     const { id } = useParams();
@@ -26,9 +27,21 @@ function ViewDocument() {
             setLoading(false);
         }
     };
+    const accessBy = async () => {
+        try {
+            const response = await customAxios.get(
+                `/DocumentAccess/GetPersonList/${id}`
+            );
+            const dt = response.data;
+            console.log("Access by ", dt);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
         fetchDocument();
+        accessBy();
     }, []);
 
     const handleSelect = (fileId) => {
@@ -55,9 +68,12 @@ function ViewDocument() {
         try {
             setLoading(true);
             console.log(selectedFiles);
-            await customAxios.delete(`/Document/RemoveFiles/${id}`, {
-                selectedFiles,
-            });
+            const response = await customAxios.delete(
+                `/Document/RemoveFiles/${id}`,
+                {
+                    data: selectedFiles,
+                }
+            );
             fetchDocument();
         } catch (error) {
             console.error(error);
@@ -89,7 +105,7 @@ function ViewDocument() {
                                     Files
                                 </h2>
                                 {selectedFiles.length > 0 && (
-                                    <div >
+                                    <div>
                                         <button
                                             className="bg-red-500 text-white px-2 py-1 rounded-md mx-2"
                                             onClick={deleteFiles}
@@ -104,9 +120,16 @@ function ViewDocument() {
                                         </button>
                                     </div>
                                 )}
+                                <div></div>
                             </div>
                             <div className="flex flex-wrap gap-4 mt-2">
-                                {renderedContent}
+                                {document.length === 0 ? (
+                                    renderedContent
+                                ) : (
+                                    <div className="text-center text-2xl font-semibold">
+                                        No Files
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

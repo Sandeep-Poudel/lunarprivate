@@ -40,10 +40,23 @@ function DocumentTableRow({ data, handleDataChange }) {
                             <i className="bx bx-plus-medical mr-1"></i> New File
                         </button>
                     </Link>
+
+                    <button
+                        className="px-4 py-2 z-10 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out"
+                        onClick={() =>
+                            navigate("editFile/", { state: { data } })
+                        }
+                    >
+                        Edit
+                    </button>
                     <div>
                         <button
                             className="px-4 py-2 z-10 font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:shadow-outline-orange active:bg-orange-600 transition duration-150 ease-in-out"
-                            onClick={()=>handleViewDetail(data.DocId)}
+                            onClick={() =>
+                                navigate(`seeFile/${data.DocId}`, {
+                                    state: { data },
+                                })
+                            }
                         >
                             View Details
                         </button>

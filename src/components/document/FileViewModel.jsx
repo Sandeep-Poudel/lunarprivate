@@ -24,7 +24,7 @@ function FileViewModel({ file, isOpen, setOpen }) {
             case "Pdf":
                
                 return (
-                    <div className="object-contain flex justify-center items-center w-screen h-[90vh] sm:w-[600px] h-[95vh] sm:h-[90vh] md:w-[700px]  lg:w-[800px]  xl:w-[1000px] ">
+                    <div className="object-contain flex justify-center items-center w-screen  sm:w-[600px] h-[95vh] sm:h-[90vh] md:w-[700px]  lg:w-[800px]  xl:w-[1000px] ">
                         <iframe
                             src={FileData}
                             className="h-full w-full rounded-md"
