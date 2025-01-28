@@ -52,29 +52,38 @@ function ViewDocument() {
         );
     };
 
-    const renderedContent = document.DocFiles?.map((item) => (
-        <Thumbnail
-            file={item}
-            key={item.FileId}
-            setFile={setFile}
-            isModelOpen={setIsModelOpen}
-            showSelect={selectedFiles?.length > 0}
-            toggleSelect={handleSelect}
-            isSelected={selectedFiles?.includes(item.FileId)}
-        />
-    ));
+    const renderedContent = document.DocFiles?.map(
+        (item) => (
+            console.log("I am logging item", item),
+            (
+                <Thumbnail
+                    file={item}
+                    key={item.FileId}
+                    setFile={setFile}
+                    isModelOpen={setIsModelOpen}
+                    showSelect={selectedFiles?.length > 0}
+                    toggleSelect={handleSelect}
+                    isSelected={selectedFiles?.includes(item.FileId)}
+                />
+            )
+        )
+    );
 
-    const deleteFiles = async () => {
+    const deleteFiles = async (item) => {
         try {
             setLoading(true);
-            console.log(selectedFiles);
-            const response = await customAxios.delete(
-                `/Document/RemoveFiles/${id}`,
-                {
-                    data: selectedFiles,
-                }
-            );
-            fetchDocument();
+            const filesToDelete = item ? [item] : selectedFiles;
+
+            console.log("files to delete: ", filesToDelete);
+            await customAxios.delete(`/Document/RemoveFiles/${id}`, {
+                data: filesToDelete,
+            });
+            if (item) {
+                setFile({});
+            } else {
+                setSelectedFiles([]);
+            }
+            await fetchDocument();
         } catch (error) {
             console.error(error);
         } finally {
@@ -108,7 +117,9 @@ function ViewDocument() {
                                     <div>
                                         <button
                                             className="bg-red-500 text-white px-2 py-1 rounded-md mx-2"
-                                            onClick={deleteFiles}
+                                            onClick={() =>
+                                                deleteFiles()
+                                            }
                                         >
                                             Delete
                                         </button>
@@ -123,7 +134,11 @@ function ViewDocument() {
                                 <div></div>
                             </div>
                             <div className="flex flex-wrap gap-4 mt-2">
-                                {document.length === 0 ? (
+                                {console.log(
+                                    "I am logging document",
+                                    document.DocFiles
+                                )}
+                                {document?.DocFiles?.length > 0 ? (
                                     renderedContent
                                 ) : (
                                     <div className="text-center text-2xl font-semibold">
@@ -138,6 +153,7 @@ function ViewDocument() {
                         isOpen={isModelOpen}
                         file={file}
                         setOpen={setIsModelOpen}
+                        deleteFile={deleteFiles}
                     />
                 </div>
             )}

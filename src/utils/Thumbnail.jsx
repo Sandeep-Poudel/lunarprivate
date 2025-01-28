@@ -53,6 +53,13 @@ function Thumbnail({
     };
 
     const content = () => {
+        if (!MediaType) {
+            return (
+                <div className="flex justify-center items-center min-[760px]:w-36 min-[760px]:h-36 w-12 h-12 rounded-md bg-gray-200">
+                    <i className="bx bxs-file min-[760px]:text-9xl text-4xl text-gray-500"></i>
+                </div>
+            );
+        }
         switch (MediaType) {
             case "Image":
                 return (
@@ -83,6 +90,7 @@ function Thumbnail({
                 );
         }
     };
+    
 
     return (
         <>
@@ -125,7 +133,7 @@ function Thumbnail({
                     isSelected
                         ? "bg-gray-300 border-gray-400"
                         : "bg-white border-gray-200"
-                } p-3 rounded-md shadow-md w-fit relative hover:shadow-xl transition border min-[760px]:block hidden duration-[50ms] cursor-pointer `}
+                } p-3 rounded-md shadow-md w-fit relative hover:shadow-md transition border min-[760px]:block hidden duration-[50ms] cursor-pointer `}
                 onDoubleClick={handleDoubleClick}
                 onClick={handleClick}
                 {...rest}

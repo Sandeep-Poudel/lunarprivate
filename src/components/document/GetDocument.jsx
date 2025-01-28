@@ -13,7 +13,7 @@ function GetDocument() {
   const [datas, setDatas] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showBlocked, setShowBlocked] = useState("");
+  const [showBlocked, setShowBlocked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterColumn, setFilterColumn] = useState("default");
   const [sortOrder, setSortOrder] = useState("default");
@@ -24,8 +24,9 @@ function GetDocument() {
   const fetchDocuments = async () => {
     try {
       setIsLoading(true);
+      console.log(`/Document/GetList/${groupId}/${showBlocked}`)
       const response = await customAxios.get(
-        `/Document/GetList/${groupId}${showBlocked}`
+        `/Document/GetList/${groupId}/`
       );
       const dt = await response.data;
       console.log(dt);
