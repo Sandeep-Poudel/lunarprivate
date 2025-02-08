@@ -47,7 +47,7 @@ function FileViewModel({ file, isOpen, setOpen, ...rest }) {
         document.body.removeChild(link);
     };
 
-    const onDelete = async () => {
+    const onDelete =  async() => {
         console.log("deleting file", FileId);
         await deleteFile(FileId);
         setOpen(false);
