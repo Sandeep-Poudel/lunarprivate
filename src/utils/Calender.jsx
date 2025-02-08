@@ -1,17 +1,71 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState, useRef } from "react";
 import customAxios from "./http";
 
-function Calender({ restrict = false, setValue, value, editable = true }) {
-    const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [toggleMonth, setToggleMonth] = useState(false);
-    const [toggleYear, setToggleYear] = useState(false);
-    const [firstDay, setFirstDay] = useState(0);
-    const [totalDays, setTotalDays] = useState(0);
-    const [allowNextMonth, setAllowNextMonth] = useState(false);
+export const MONTHS = [
+    "Baisakh",
+    "Jestha",
+    "Ashadh",
+    "Shrawan",
+    "Bhadra",
+    "Ashwin",
+    "Kartik",
+    "Mangsir",
+    "Poush",
+    "Magh",
+    "Falgun",
+    "Chaitra",
+];
 
-    // State for today, current month/year, and selected date
-    const [today, setToday] = useState({});
+export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export const fetchTodayNepaliDate = async () => {
+    try {
+        const response = await customAxios.get(
+            `Daylist/GetItem/${new Date().getFullYear()}-${
+                new Date().getMonth() + 1
+            }-${new Date().getDate()}`
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching today's Nepali date:", error);
+        throw error;
+    }
+};
+
+export const fetchMonthData = async (year, month) => {
+    const response = await customAxios.get(`DayList/GetList/${year}/${month}`);
+    return response.data;
+};
+
+export const formatDate = (date) => {
+    const formattedMonth = date.month < 10 ? `0${date.month}` : `${date.month}`;
+    const formattedDay = date.day < 10 ? `0${date.day}` : `${date.day}`;
+    return `${date.year}-${formattedMonth}-${formattedDay}`;
+};
+
+export const getDayClass = (isToday, isSelected, isDisabled = false) => {
+    const baseClass =
+        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors duration-200";
+
+    if (isDisabled) {
+        return `${baseClass} bg-gray-100 text-gray-400 cursor-not-allowed`;
+    }
+
+    if (isSelected) {
+        return `${baseClass} bg-blue-500 text-white hover:bg-blue-600 cursor-pointer`;
+    }
+
+    if (isToday) {
+        return `${baseClass} border-2 border-blue-600 text-blue-600 hover:bg-blue-50 cursor-pointer`;
+    }
+
+    return `${baseClass} hover:bg-blue-100 cursor-pointer`;
+};
+
+const Calendar = ({ restrict = false, value, setValue, editable = false }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [todayData, setTodayData] = useState(null);
     const [currentMonth, setCurrentMonth] = useState(
         Number(value?.month !== 0 ? value?.month : 1)
     );
@@ -23,103 +77,91 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
         month: Number(value?.month !== 0 ? value?.month : currentMonth),
         day: Number(value?.day !== 0 ? value?.day : 1),
     });
+    const [monthData, setMonthData] = useState(null);
+    const [initialFetchComplete, setInitialFetchComplete] = useState(false);
 
-    const [renderedDays, setRenderedDays] = useState([]);
-    const [monthInput, setMonthInput] = useState(currentMonth);
-    const [yearInput, setYearInput] = useState(currentYear);
-    const [days, setDays] = useState([]);
+    const [editingYear, setEditingYear] = useState(false);
+    const [editingMonth, setEditingMonth] = useState(false);
+    const [yearInput, setYearInput] = useState("");
+    const [monthInput, setMonthInput] = useState("");
 
-    const divElemt = useRef();
-
-    const fetchTodayDate = useCallback(async () => {
-        try {
-            const response = await customAxios.get(
-                `Daylist/GetItem/${new Date().getFullYear()}-${
-                    new Date().getMonth() + 1
-                }-${new Date().getDate()}`
-            );
-
-            const data = response.data;
-            setToday({ year: data.Year, month: data.Month, day: data.Day });
-            if (!value.month && !value.year) {
-                setCurrentMonth(data.Month);
-                setCurrentYear(data.Year);
-            }
-        } catch (error) {
-            console.error("Failed to fetch today's date:", error);
-        }
-    }, []);
+    const calendarRef = useRef(null);
 
     useEffect(() => {
-        fetchTodayDate(); // Fetch today's date on mount
-    }, [fetchTodayDate]);
-
-    useEffect(() => {
-        if (value) {
-            setCurrentMonth(Number(value.month));
-            setCurrentYear(Number(value.year));
-            setSelectedDate({
-                year: Number(value.year),
-                month: Number(value.month),
-                day: Number(value.day),
-            });
-        }
-    }, [value]);
-
-    useEffect(() => {
-        const handler = (event) => {
-            if (!divElemt.current) {
-                return;
-            }
-            if (!divElemt.current.contains(event.target)) {
+        const handleClickOutside = (event) => {
+            if (
+                calendarRef.current &&
+                !calendarRef.current.contains(event.target)
+            ) {
                 setIsOpen(false);
             }
         };
-        document.addEventListener("click", handler, true);
-        return () => {
-            document.removeEventListener("click", handler, true);
-        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const monthLabels = [
-        "Baisakh",
-        "Jestha",
-        "Ashadh",
-        "Shrawan",
-        "Bhadra",
-        "Ashwin",
-        "Kartik",
-        "Mangsir",
-        "Poush",
-        "Magh",
-        "Falgun",
-        "Chaitra",
-    ];
+    const fetchInitialData = useCallback(async () => {
+        try {
+            console.log("Fetching initial data...");
+            setIsLoading(true);
+            const today = await fetchTodayNepaliDate();
+            setTodayData(today);
 
-    const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    const formatDate = ({ year, month, day }) => {
-        const formattedDay = day < 10 ? `0${day}` : day;
-        const formattedMonth = month < 10 ? `0${month}` : month;
-        return `${year}-${formattedMonth}-${formattedDay}`;
-    };
-
-    const generateCalendarDays = (firstDay, totalDays) => {
-        const daysArray = new Array(35).fill(null);
-        let dayCounter = 1;
-        let startIndex = firstDay;
-        while (dayCounter <= totalDays) {
-            if (startIndex >= 35) {
-                startIndex %= 7;
+            if (value?.year && value?.month && value?.day) {
+                setCurrentYear(parseInt(value.year));
+                setCurrentMonth(parseInt(value.month));
+                setSelectedDate({
+                    year: parseInt(value.year),
+                    month: parseInt(value.month),
+                    day: parseInt(value.day),
+                });
+            } else {
+                setCurrentYear(today.Year);
+                setCurrentMonth(today.Month);
             }
-            daysArray[startIndex++] = dayCounter++;
+            const month = await fetchMonthData(
+                value?.year ? parseInt(value.year) : today.Year,
+                value?.month ? parseInt(value.month) : today.Month
+            );
+            setMonthData(month);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+            setInitialFetchComplete(true);
         }
-        return daysArray;
-    };
+    }, []);
 
-    const handleClickDay = (day) => {
-        setSelectedDate({ year: currentYear, month: currentMonth, day: day });
-        setValue({
+    useEffect(() => {
+        fetchInitialData();
+    }, []); // Dependency array ensures this runs only once
+
+    useEffect(() => {
+        if (!initialFetchComplete) return;
+        const fetchNewMonthData = async () => {
+            try {
+                setIsLoading(true);
+                const month = await fetchMonthData(currentYear, currentMonth);
+                setMonthData(month);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchNewMonthData();
+    }, [currentYear, currentMonth]);
+
+    const handleDateSelect = (day) => {
+        const newDate = {
+            year: currentYear,
+            month: currentMonth,
+            day,
+        };
+        setSelectedDate(newDate);
+        setValue?.({
             year: currentYear.toString(),
             month:
                 currentMonth < 10
@@ -130,269 +172,252 @@ function Calender({ restrict = false, setValue, value, editable = true }) {
         setIsOpen(false);
     };
 
-    const makeDays = async () => {
-        setRenderedDays(
-            days.map((day, index) => {
-                return (
-                    <div
-                        key={index}
-                        className={` ${
-                            day
-                                ? restrict &&
-                                  day > today.day &&
-                                  currentMonth == today.month &&
-                                  currentYear == today.year
-                                    ? "cursor-not-allowed  border bg-gray-300 hover:bg-gray-300"
-                                    : `cursor-pointer border ${
-                                          selectedDate.day == day &&
-                                          selectedDate.month == currentMonth &&
-                                          selectedDate.year == currentYear
-                                              ? "bg-blue-500 text-white hover:bg-blue-500"
-                                              : "hover:bg-gray-200"
-                                      }`
-                                : ""
-                        } p-1 text-center `}
-                        onClick={() => {
-                            day &&
-                            !(
-                                restrict &&
-                                day > today.day &&
-                                currentMonth == today.month &&
-                                currentYear == today.year
-                            )
-                                ? handleClickDay(day)
-                                : null;
-                        }}
-                    >
-                        {day}
-                    </div>
-                );
-            })
-        );
+    const handleMonthChange = (direction = "next") => {
+        if (isLoading) return;
+
+        if (direction === "next") {
+            if (
+                restrict &&
+                todayData &&
+                currentYear === todayData.Year &&
+                currentMonth === todayData.Month
+            ) {
+                return;
+            }
+            if (currentMonth === 12) {
+                setCurrentYear((prev) => prev + 1);
+                setCurrentMonth(1);
+            } else {
+                setCurrentMonth((prev) => prev + 1);
+            }
+        } else {
+            if (currentMonth === 1) {
+                setCurrentYear((prev) => prev - 1);
+                setCurrentMonth(12);
+            } else {
+                setCurrentMonth((prev) => prev - 1);
+            }
+        }
     };
 
-    useEffect(() => {
-        makeDays(firstDay, totalDays);
-    }, [days, selectedDate]);
+    const handleYearInput = () => {
+        const year = parseInt(yearInput);
+        if (year >= 2000 && year <= 2100) {
+            if (
+                restrict &&
+                todayData &&
+                (year > todayData.Year ||
+                    (year === todayData.Year && currentMonth > todayData.Month))
+            ) {
+                setCurrentYear(todayData.Year);
+                setCurrentMonth(todayData.Month);
+            } else {
+                setCurrentYear(year);
+            }
+        }
+        setEditingYear(false);
+    };
 
-    const fetchDays = async () => {
-        try {
-            setLoading(true);
-            const response = await customAxios.get(
-                `DayList/GetList/${currentYear}/${currentMonth}`
+    const handleMonthInput = () => {
+        const month = parseInt(monthInput);
+        if (month >= 1 && month <= 12) {
+            if (
+                restrict &&
+                todayData &&
+                currentYear === todayData.Year &&
+                month > todayData.Month
+            ) {
+                setCurrentMonth(todayData.Month);
+            } else {
+                setCurrentMonth(month);
+            }
+        }
+        setEditingMonth(false);
+    };
+
+    const renderCalendarDays = () => {
+        if (!monthData) return null;
+
+        const days = [];
+        const totalCells = 35;
+        let dayCounter = 1;
+        let startDayOffset = new Date(monthData[0].EnglishDate).getDay();
+        for (let i = 0; i < startDayOffset; i++) {
+            days.push(<div key={i} className="h-8" />);
+        }
+        while (dayCounter <= monthData.length) {
+            if (startDayOffset >= 35) {
+                startDayOffset %= 7;
+            }
+            const day = dayCounter;
+            const isToday =
+                todayData &&
+                day === todayData.Day &&
+                currentMonth === todayData.Month &&
+                currentYear === todayData.Year;
+            const isSelected =
+                selectedDate &&
+                day === selectedDate.day &&
+                currentMonth === selectedDate.month &&
+                currentYear === selectedDate.year;
+            const isFutureDate =
+                restrict &&
+                todayData &&
+                (currentYear > todayData.Year ||
+                    (currentYear === todayData.Year &&
+                        currentMonth > todayData.Month) ||
+                    (currentYear === todayData.Year &&
+                        currentMonth === todayData.Month &&
+                        day > todayData.Day));
+
+            days[startDayOffset++] = (
+                <button
+                    key={startDayOffset + dayCounter++}
+                    onClick={() => !isFutureDate && handleDateSelect(day)}
+                    disabled={isFutureDate}
+                    className={getDayClass(isToday, isSelected, isFutureDate)}
+                >
+                    {day}
+                </button>
             );
-            const firstDayValue = new Date(
-                response.data[0].EnglishDate
-            ).getDay();
-            const totalDaysValue = response.data.length;
-
-            setFirstDay(firstDayValue);
-            setTotalDays(totalDaysValue);
-
-            // Generate the calendar days after updating firstDay and totalDays
-            const newDays = generateCalendarDays(firstDayValue, totalDaysValue);
-            setDays(newDays);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
         }
+
+        
+        return days;
     };
-
-    const updateMonth = async (direction) => {
-        setCurrentMonth((prevMonth) => {
-            let newMonth = direction === "next" ? prevMonth + 1 : prevMonth - 1;
-            if (newMonth > 12) {
-                setCurrentYear((prevYear) => prevYear + 1);
-                newMonth = 1;
-            } else if (newMonth < 1) {
-                setCurrentYear((prevYear) => prevYear - 1);
-                newMonth = 12;
-            }
-            return newMonth;
-        });
-    };
-
-    useEffect(() => {
-        if (currentMonth && currentYear) {
-            fetchDays();
-            setMonthInput(currentMonth);
-            setYearInput(currentYear);
-        }
-    }, [currentMonth, currentYear]);
-
-    useEffect(() => {
-        setAllowNextMonth(
-            today.year > 0 &&
-                today.month > 0 &&
-                today.day > 0 &&
-                !(
-                    restrict &&
-                    currentYear === today.year &&
-                    currentMonth === today.month
-                )
-        );
-    }, [today, restrict, currentYear, currentMonth]);
-
-    const fixMonth = () => {
-        if (monthInput >= 1 && monthInput <= 12) {
-            if (
-                restrict &&
-                currentYear === today.year &&
-                monthInput > today.month
-            ) {
-                setCurrentMonth(today.month);
-                setMonthInput(today.month);
-                setCurrentYear(today.year);
-            } else {
-                setCurrentMonth(Number(monthInput));
-            }
-            setToggleMonth(false);
-        } else {
-            setMonthInput(currentMonth);
-            setToggleMonth(false);
-        }
-    };
-
-    const monthField = !editable ? (
-        <p>{monthLabels[currentMonth - 1]}</p>
-    ) : !toggleMonth ? (
-        <p
-            onClick={() => setToggleMonth((prev) => !prev)}
-            className="cursor-pointer"
-        >
-            {monthLabels[currentMonth - 1]}
-        </p>
-    ) : (
-        <input
-            value={monthInput}
-            autoFocus
-            className="border-none w-6 text-center outline-none"
-            onChange={(e) => setMonthInput(e.target.value)}
-            onBlur={() => {
-                fixMonth();
-            }}
-            onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                    fixMonth();
-                }
-            }}
-        />
-    );
-
-    const fixYear = () => {
-        if (yearInput >= 2000 && yearInput <= 2100) {
-           
-            if (
-                restrict &&
-                (yearInput > today.year ||
-                    (yearInput == today.year && currentMonth > today.month))
-            ) {
-                setCurrentMonth(today.month);
-                setYearInput(today.year);
-                setCurrentYear(today.year);
-            } else {
-                setCurrentYear(Number(yearInput));
-            }
-            setToggleYear(false);
-        } else {
-            setYearInput(currentYear);
-            setToggleYear(false);
-        }
-    };
-
-    const yearField = !editable ? (
-         <p>{currentYear}</p>
-    ) : !toggleYear ? (
-        <p
-            onClick={() => setToggleYear((prev) => !prev)}
-            className="cursor-pointer"
-        >
-            {currentYear}
-        </p>
-    ) : (
-        <input
-            value={yearInput}
-            autoFocus
-            className="border-none w-16 text-center outline-none"
-            onChange={(e) => setYearInput(e.target.value)}
-            onBlur={() => {
-                fixYear();
-            }}
-            onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                    fixYear();
-                }
-            }}
-        />
-    );
 
     return (
-        <div ref={divElemt} className="relative w-48">
+        <div ref={calendarRef} className="relative w-48">
             <div
-                className="flex justify-between items-center cursor-pointer border rounded px-3 py-2 shadow bg-white w-full select-none"
+                className="flex justify-between items-center cursor-pointer border rounded px-3 py-2 shadow-sm bg-white w-full"
                 onClick={() => setIsOpen((prev) => !prev)}
             >
-               
-                {selectedDate.year ? formatDate(selectedDate) : "Select ..."}
-                <i
-                    className={`bx ${
-                        isOpen ? "bxs-chevron-up" : "bxs-chevron-down"
-                    }`}
-                ></i>
+                <span className="text-gray-700">
+                    {selectedDate ? formatDate(selectedDate) : "Select date..."}
+                </span>
+                {isOpen ? (
+                    <i className=" bx bxs-chevron-up h-4 w-4" />
+                ) : (
+                    <i className=" bx bxs-chevron-down h-4 w-4" />
+                )}
             </div>
-            {isOpen && (
-                <div className="absolute top-full border rounded p-3 shadow-xl bg-white w-72 text-gray-700 select-none">
-                    <div className="flex flex-row  justify-between items-center mb-2">
-                        <i
-                            className="bx bxs-chevron-left p-2 cursor-pointer hover:bg-gray-200"
-                            onClick={() =>
-                                loading ? null : updateMonth("prev")
-                            }
-                        />
 
-                        <div className="flex flex-row border px-3 py-1 gap-3">
-                            {monthField}
-                            <div className="border-r"></div>
-                            {yearField}
-                        </div>
-                        <i
-                            className={`bx  p-2  ${
-                                allowNextMonth
-                                    ? "bxs-chevron-right  hover:bg-gray-200 cursor-pointer"
-                                    : ""
-                            }`}
-                            onClick={() =>
-                                allowNextMonth && !loading
-                                    ? updateMonth("next")
-                                    : null
-                            }
-                        />
-                    </div>
-                    <div>
-                        <div className="grid grid-cols-7 mb-2">
-                            {weekdayLabels.map((label, index) => (
-                                <p
-                                    className="justify-center flex items-center "
-                                    key={index}
+            {isOpen && (
+                <div className="absolute top-full mt-1 border rounded-lg p-4 shadow-xl bg-white w-72 z-50">
+                    <div className="flex justify-between items-center mb-4">
+                        <button
+                            onClick={() => handleMonthChange("prev")}
+                            disabled={isLoading}
+                            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <i className=" bx bxs-chevron-left h-4 w-4" />
+                        </button>
+
+                        <div className="flex gap-2 items-center">
+                            {editingMonth ? (
+                                <input
+                                    value={monthInput}
+                                    onChange={(e) =>
+                                        setMonthInput(e.target.value)
+                                    }
+                                    onBlur={handleMonthInput}
+                                    onKeyDown={(e) =>
+                                        e.key === "Enter" && handleMonthInput()
+                                    }
+                                    className="w-16 text-center border rounded p-1"
+                                    autoFocus
+                                />
+                            ) : (
+                                <span
+                                    onClick={() => {
+                                        if (editable) {
+                                            setEditingMonth(true);
+                                            setMonthInput(
+                                                currentMonth.toString()
+                                            );
+                                        }
+                                    }}
+                                    className={
+                                        editable
+                                            ? "cursor-pointer hover:text-blue-600 rounded border p-1"
+                                            : ""
+                                    }
                                 >
-                                    {label}
-                                </p>
-                            ))}
+                                    {MONTHS[currentMonth - 1]}
+                                </span>
+                            )}
+
+                            {editingYear ? (
+                                <input
+                                    value={yearInput}
+                                    onChange={(e) =>
+                                        setYearInput(e.target.value)
+                                    }
+                                    onBlur={handleYearInput}
+                                    onKeyDown={(e) =>
+                                        e.key === "Enter" && handleYearInput()
+                                    }
+                                    className="w-16 text-center border rounded p-1"
+                                    autoFocus
+                                />
+                            ) : (
+                                <span
+                                    onClick={() => {
+                                        if (editable) {
+                                            setEditingYear(true);
+                                            setYearInput(
+                                                currentYear.toString()
+                                            );
+                                        }
+                                    }}
+                                    className={
+                                        editable
+                                            ? "cursor-pointer hover:text-blue-600 border p-1 rounded"
+                                            : ""
+                                    }
+                                >
+                                    {currentYear}
+                                </span>
+                            )}
                         </div>
-                        {!loading ? (
-                            <div className="grid grid-cols-7 ">
-                                {renderedDays}
-                            </div>
-                        ) : (
-                            <div className="h-48  flex justify-center items-center ">
-                                Loading...
-                            </div>
-                        )}
+
+                        <button
+                            onClick={() => handleMonthChange("next")}
+                            disabled={
+                                isLoading ||
+                                (restrict &&
+                                    todayData &&
+                                    currentYear === todayData.Year &&
+                                    currentMonth === todayData.Month)
+                            }
+                            className="p-1 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <i className=" bx bxs-chevron-right h-4 w-4" />
+                        </button>
                     </div>
+
+                    <div className="grid grid-cols-7 gap-1 mb-2">
+                        {WEEKDAYS.map((day) => (
+                            <div
+                                key={day}
+                                className="h-8 flex items-center justify-center text-sm font-medium text-gray-500"
+                            >
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+
+                    {isLoading ? (
+                        <div className="flex justify-center items-center h-40 w-full">Loading...</div>
+                    ) : (
+                        <div className="grid grid-cols-7 gap-1">
+                            {renderCalendarDays()}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
     );
-}
-export default Calender;
+};
+
+export default Calendar;

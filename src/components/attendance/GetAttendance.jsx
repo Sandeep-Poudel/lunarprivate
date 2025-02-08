@@ -12,14 +12,14 @@ function GetAttendance() {
     const navigate = useNavigate();
 
     const [startDate, setStartDate] = useState({
-        year: Number(2081),
-        month: Number(9),
+        year: Number(2080),
+        month: Number(1),
         day: Number(1),
     });
     const [endDate, setEndDate] = useState({
-        year: Number(),
-        month: Number(),
-        day: Number(),
+        year: Number(0),
+        month: Number(0),
+        day: Number(0),
     });
     const [search, setSearch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
