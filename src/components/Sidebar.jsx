@@ -1,5 +1,6 @@
 import React from "react";
 import useIsMobile from "../utils/useMobile";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const isMobile = useIsMobile();
@@ -11,46 +12,78 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     // };
     const menuItems = [
         {
-            title: "Office Management",
+            title: "Home",
+            to: "/",
             icon: <i className="bx bx-home-alt text-xl" />,
-            items: ["Office List", "Branch Office", "Office Setting"],
+        },
+        {
+            title: "Office Management",
+            to: "/office",
+            icon: <i className="bx bx-building text-xl" />,
+            items: [
+                { title: "Office List", to: "/office" },
+                { title: "Office Category", to: "/office" },
+                { title: "Office Setting", to: "/office" },
+            ],
         },
         {
             title: "Document Management",
-            icon: <i className="bx bxs-folder-open text-xl" />,
-            items: ["Document Group", "Office Document", "Access Control"],
+            to: "/documentGroup",
+            icon: <i className="bx bx-file text-xl" />,
+            items: [
+                { title: "Document Group", to: "/documentGroup" },
+                { title: "Office Document", to: "/document" },
+                { title: "Access Control", to: "/documentGroup" },
+            ],
         },
         {
             title: "Academic",
+            to: "/",
             icon: <i className="bx bx-book text-xl" />,
-            items: ["Student Batch", "Grade List", "Class List"],
+            items: [
+                { title: "Student Batch", to: "" },
+                { title: "Grade List", to: "" },
+                { title: "Class List", to: "" },
+            ],
         },
         {
             title: "Library",
-            icon: <i className="bx bx-book-open text-xl" />,
-            items: ["Book Category", "Book List", "Issue/Return"],
+            to: "/",
+            icon: <i className="bx bx-library text-xl" />,
+            items: [
+                { title: "Book Category", to: "" },
+                { title: "Book List", to: "" },
+                { title: "Issue/Return", to: "" },
+            ],
         },
         {
             title: "Website",
+            to: "/",
             icon: <i className="bx bx-globe text-xl" />,
-            items: ["Web Contacts", "Web Setting"],
+            items: [
+                { title: "Web Contacts", to: "/" },
+                { title: "Web Setting", to: "/" },
+            ],
         },
         {
             title: "Settings",
+            to: "/",
             icon: <i className="bx bx-cog text-xl" />,
-            items: ["User Management", "System Settings"],
+            items: [
+                { title: "User Management", to: "/" },
+                { title: "System Settings", to: "/" },
+            ],
         },
     ];
 
     if (isMobile && isCollapsed) {
         return null;
-      }
-    
+    }
 
     return (
         <div
-            className={`fixed md:relative z-30 flex flex-col border-r bg-white/50 backdrop-blur-xl transition-all duration-300 h-screen 
-                ${isCollapsed ? "w-20" : "w-64"} ${isMobile && !isCollapsed && "w-64 shadow-xl" }`}
+            className={`fixed sidebar md:relative z-[100] flex flex-col border-r ${isMobile ? "bg-white":"bg-white/50 backdrop-blur-xl"} transition-all duration-300 h-screen
+                ${isCollapsed ? "w-20" : "w-64"} `}
         >
             <div className="flex h-16 items-center justify-between px-4">
                 <h2
@@ -72,10 +105,11 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     )}
                 </button>
             </div>
-            <nav className="flex-1  p-4 overflow-y-auto">
+            <nav className="flex-1  p-4 overflow-y-auto ">
                 {menuItems.map((item) => (
                     <div key={item.title} className="space-y-">
-                        <div
+                        <NavLink
+                            to={item.to}
                             className={`
                                 flex items-center space-x-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-200
                                 ${isCollapsed && "justify-center"}
@@ -85,17 +119,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                             {!isCollapsed && (
                                 <span className="truncate">{item.title}</span>
                             )}
-                        </div>
+                        </NavLink>
                         {!isCollapsed && (
                             <div className="ml-8 space-y-1">
-                                {item.items.map((subItem) => (
-                                    <a
-                                        key={subItem}
-                                        href="#"
+                                {item.items?.map((subItem) => (
+                                    <NavLink
+                                        key={subItem.title}
+                                        to={subItem.to}
                                         className="block rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 truncate"
                                     >
-                                        {subItem}
-                                    </a>
+                                        {subItem.title}
+                                    </NavLink>
                                 ))}
                             </div>
                         )}

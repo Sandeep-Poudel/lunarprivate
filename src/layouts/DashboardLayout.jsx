@@ -9,9 +9,15 @@ import useIsMobile from "../utils/useMobile";
 const DashboardLayout = () => {
     const isMobile = useIsMobile();
     const [isCollapsed, setIsCollapsed] = useState(isMobile);
-
+    console.log(
+        "THis is from dashboard layout :",
+        "isMobile:",
+        isMobile,
+        "isCollapsed:",
+        isCollapsed
+    );
     return (
-        <div className="flex  min-h-screen">
+        <div className="flex overflow-hidden h-screen">
             <Sidebar
                 isCollapsed={isCollapsed}
                 setIsCollapsed={setIsCollapsed}
@@ -25,7 +31,7 @@ const DashboardLayout = () => {
                         setIsCollapsed={setIsCollapsed}
                     />
                 </Suspense>
-                <div className="flex-1 bg-gray-100 p-4 overflow-auto">
+                <div className="flex-1 overflow-y-auto px-4 py-2 md-px-8 ">
                     <Suspense fallback={<LazyLoader />}>
                         <Outlet />
                     </Suspense>

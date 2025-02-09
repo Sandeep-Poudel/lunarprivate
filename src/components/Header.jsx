@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { showToast } from "../utils/ReactToast";
 
-const Header = ({isMobile,isCollapsed,setIsCollapsed}) => {
+const Header = ({ isMobile, isCollapsed, setIsCollapsed }) => {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
     // Toggle Sidebar Menu
@@ -31,20 +31,23 @@ const Header = ({isMobile,isCollapsed,setIsCollapsed}) => {
     };
 
     return (
-        <nav className="sticky top-0 z-30 w-full h-16 px-4 md:px-6 bg-white/50 backdrop-blur-lg border-b">
+        <nav className="sticky top-0 z-30 w-full h-16 px-4 bg-white/50 backdrop-blur-lg border-b">
             <div className="flex items-center justify-between h-full">
                 {/* Left side - Mobile menu button */}
-                <div>
-                {console.log('isMobile:', isMobile, 'isCollapsed:', isCollapsed)}
+                <div className="flex items-center gap-4">
+                   
 
                     {isMobile && isCollapsed && (
                         <button
                             onClick={() => setIsCollapsed(false)}
                             className="rounded-lg p-2 hover:bg-gray-100"
                         >
-                        <i className="bx bx-menu text-2xl w-5 h-5 text-gray-600 flex justify-center items-center" />
+                            <i className="bx bx-menu text-2xl w-5 h-5 text-gray-600 flex justify-center items-center" />
                         </button>
                     )}
+                    <div className="text-xl font-bold text-blue-900">
+                        <span className="text-indigo-800">Lunar Dashboard</span>
+                    </div>
                 </div>
 
                 {/* Right side - User profile and notifications */}
