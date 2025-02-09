@@ -137,6 +137,7 @@ function ViewDocument() {
                         onSelectAll={handleSelectAll}
                         onClearSelection={handleClearSelection}
                         accessedBy={accessedBy}
+                        id={id}
                         
                     />
                     {files.DocFiles?.length > 0 ? (
