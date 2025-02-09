@@ -39,7 +39,13 @@ const UpdateFeeTopic = lazy(()=>import('./components/feeTopic/UpdateFeeTopic'));
 const SeeAllFeeTopic = lazy(()=>import('./components/feeTopic/SeeAllFeeTopic'));
 
 //Attendence
-const GetAttendence = lazy(()=>import('./components/attendence/GetAttendence'));
+const GetAttendance = lazy(()=>import('./components/attendance/GetAttendance'));
+
+//Document
+const InsertDocument = lazy(()=>import('./components/document/InsertDocument'));
+const GetDocument = lazy(()=>import('./components/document/GetDocument'));
+const ViewDocument = lazy(()=>import('./components/document/ViewDocument'))
+const EditFile = lazy(()=>import('./components/document/EditFile'));
 
 //Person Category
 const GetPersonCategory = lazy(()=>import('./components/personCategory/GetPersonCategory'));
@@ -59,6 +65,7 @@ const Error = lazy(() => import('./Error'));
 
 import { ToastContainer } from 'react-toastify';
 import LazyLoader from './utils/LazyLoader';
+import InsertFile from './components/document/InsertFile';
 
 function App() {
   return (
@@ -118,7 +125,16 @@ function App() {
 
               {/* For Attendence */}
               <Route path='attendence/'>
-                <Route index element={<GetAttendence/>}/>
+                <Route index element={<GetAttendance/>}/>
+              </Route>
+
+              {/* For Document */}
+              <Route path='document/'>
+                <Route index element={<GetDocument/>}/>
+                <Route path='insert/:id' element={<InsertDocument/>} />
+                <Route path='addFile/:params' element={<InsertFile/>} />
+                <Route path='seeFile/:id' element={<ViewDocument/>}/>
+                <Route path='editFile/' element={<EditFile/>} />
               </Route>
 
               {/* For Person Category */}
