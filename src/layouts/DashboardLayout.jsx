@@ -9,40 +9,27 @@ import useIsMobile from "../utils/useMobile";
 const DashboardLayout = () => {
     const isMobile = useIsMobile();
     const [isCollapsed, setIsCollapsed] = useState(isMobile);
-    console.log(
-        "THis is from dashboard layout :",
-        "isMobile:",
-        isMobile,
-        "isCollapsed:",
-        isCollapsed
-    );
+
     return (
         <div className="flex overflow-hidden h-screen">
             <Sidebar
                 isCollapsed={isCollapsed}
-                setIsCollapsed={setIsCollapsed}
+                setIsCollapsed={setIsCollapsed}         
             />
 
-            <div className="flex flex-1 flex-col">
-                <Suspense fallback={<LazyLoader />}>
-                    <Header
-                        isCollapsed={isCollapsed}
-                        isMobile={isMobile}
-                        setIsCollapsed={setIsCollapsed}
-                    />
-                </Suspense>
-                <div className="flex-1 overflow-y-auto px-4 py-2 md-px-8 ">
+            <div className="flex flex-1 flex-col overflow-x-hidden">
+                <Header
+                    isCollapsed={isCollapsed}
+                    isMobile={isMobile}
+                    setIsCollapsed={setIsCollapsed}
+                />
+                <div className="flex-1 overflow-x-auto px-4 py-2 md-px-8 ">
                     <Suspense fallback={<LazyLoader />}>
                         <Outlet />
                     </Suspense>
                 </div>
             </div>
-            {isMobile && !isCollapsed && (
-                <div
-                    className="fixed inset-0 bg-black/20 z-20"
-                    onClick={() => setIsCollapsed(true)}
-                />
-            )}
+            
         </div>
     );
 };

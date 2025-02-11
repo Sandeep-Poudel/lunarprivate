@@ -27,7 +27,7 @@ export const FileItem = ({
 
     const handleDoubleClick = () => {
         if (!selected) {
-            onPreview(file); 
+            onPreview(file);
         }
     };
 
@@ -124,7 +124,9 @@ export const FileItem = ({
                     onChange={handleSelect}
                 />
                 <div className="flex flex-col justify-center items-center">
-                    <div className="w-[150px] overflow-hidden p-1 bg-gray-200">{getIcon()}</div>
+                    <div className="w-[150px] overflow-hidden p-1 bg-gray-200">
+                        {getIcon()}
+                    </div>
                     <p className="text-sm mt-1 mb-2 line-clamp-1 self-start">
                         {FileClientDescription.length > 20
                             ? `${FileClientDescription.substring(0, 20)}...`
