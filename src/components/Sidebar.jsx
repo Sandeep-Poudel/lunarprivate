@@ -1,15 +1,28 @@
 import React from "react";
 import useIsMobile from "../utils/useMobile";
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const isMobile = useIsMobile();
+    const [searchTerm, setSearchTerm] = useState("");
 
     // const handleLogout = () => {
     //   localStorage.removeItem("authToken");
     //   showToast("Logged Out Successfully", "success");
     //   navigate("/login");
     // };
+    const [expandedList, setExpandedList] = useState(null);
+
+    const handleSearchTerm = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleSidebarCollapse = () => {
+        setIsCollapsed((prev) => !prev);
+        setSearchTerm("");
+    };
+
     const menuItems = [
         {
             title: "Home",
@@ -38,7 +51,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         },
         {
             title: "Academic",
-            to: "/",
+            to: "/attendence",
             icon: <i className="bx bx-book text-xl" />,
             items: [
                 { title: "Student Batch", to: "" },
@@ -80,63 +93,136 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         return null;
     }
 
-    return (
-        <div
-            className={`fixed sidebar md:relative z-[100] flex flex-col border-r ${isMobile ? "bg-white":"bg-white/50 backdrop-blur-xl"} transition-all duration-300 h-screen
-                ${isCollapsed ? "w-20" : "w-64"} `}
-        >
-            <div className="flex h-16 items-center justify-between px-4">
-                <h2
+    const getFilteredData = () => {
+        if (!searchTerm) {
+            return menuItems;
+        }
+
+        return menuItems.filter((item) => {
+            const titleMatch = item.title
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
+            const itemsMatch =
+                item.items &&
+                item.items.some((subItem) =>
+                    subItem.title
+                        .toLowerCase()
+                        .includes(searchTerm.toLowerCase())
+                );
+            return titleMatch || itemsMatch;
+        });
+    };
+
+    const renderNavLinks = () => {
+        const filteredData = getFilteredData();
+        console.log(filteredData);
+
+        return filteredData.map((item, index) => (
+            // <NavBlock item={item} isCollapsed={isCollapsed} isMobile={isMobile}/>
+            <div
+                key={item.title}
+                className="space-y-2"
+                onClick={() =>
+                    setExpandedList((prev) => {
+                        if (prev === index) {
+                            return null;
+                        } else {
+                            return index;
+                        }
+                    })
+                }
+            >
+                <NavLink
+                    to={item.to}
                     className={`
-                        "text-lg font-semibold text-gray-800 leading-tight"
-                        ${isCollapsed && "hidden"}
-                    `}
-                >
-                    OMS
-                </h2>
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="rounded-lg  hover:bg-gray-100 flex  justify-center items-center p-2 h-auto"
-                >
-                    {isCollapsed ? (
-                        <i className="bx bx-menu text-2xl w-5 h-5 flex justify-center items-center" />
-                    ) : (
-                        <i className="bx bx-x  text-2xl w-5 h-5 flex justify-center items-center" />
-                    )}
-                </button>
-            </div>
-            <nav className="flex-1  p-4 overflow-y-auto ">
-                {menuItems.map((item) => (
-                    <div key={item.title} className="space-y-">
-                        <NavLink
-                            to={item.to}
-                            className={`
                                 flex items-center space-x-3 rounded-lg px-3 py-2 text-gray-600 hover:bg-gray-200
                                 ${isCollapsed && "justify-center"}
                             `}
-                        >
-                            {item.icon}
-                            {!isCollapsed && (
-                                <span className="truncate">{item.title}</span>
-                            )}
-                        </NavLink>
-                        {!isCollapsed && (
-                            <div className="ml-8 space-y-1">
-                                {item.items?.map((subItem) => (
-                                    <NavLink
-                                        key={subItem.title}
-                                        to={subItem.to}
-                                        className="block rounded-lg px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 truncate"
-                                    >
-                                        {subItem.title}
-                                    </NavLink>
-                                ))}
-                            </div>
+                    onClick={() => isMobile && setIsCollapsed(true)}
+                >
+                    {item.icon}
+                    {!isCollapsed && (
+                        <span className="truncate">{item.title}</span>
+                    )}
+                </NavLink>
+                {!isCollapsed &&
+                    (expandedList === index || searchTerm.length > 0) &&
+                    item.items?.length > 0 && (
+                        <div className="ml-8 space-y-1 ">
+                            {item.items?.map((subItem) => (
+                                <NavLink
+                                    key={subItem.title}
+                                    to={subItem.to}
+                                    onClick={() =>
+                                        isMobile && setIsCollapsed(true)
+                                    }
+                                    className={({ isActive }) =>
+                                        `block rounded-lg px-3 py-2 text-sm  hover:bg-gray-100 ${
+                                            isActive
+                                                ? "text-indigo-700 font-semibold bg-indigo-100 hover:bg-indigo-200"
+                                                : "text-gray-600 hover:bg-indigo-100"
+                                        }  truncate`
+                                    }
+                                >
+                                    {subItem.title}
+                                </NavLink>
+                            ))}
+                        </div>
+                    )}
+            </div>
+        ));
+    };
+
+    return (
+        <>
+            <div
+                className={`fixed sidebar md:relative z-[100] flex flex-col border-r ${
+                    isMobile ? "bg-white" : "bg-white/50 backdrop-blur-xl"
+                } transition-all duration-300 h-screen
+                ${isCollapsed ? "w-20" : "w-64"} `}
+            >
+                <div className="flex h-16 items-center justify-between px-4">
+                    <h2
+                        className={`
+                        "text-lg font-semibold text-gray-800 leading-tight"
+                        ${isCollapsed && "hidden"}
+                    `}
+                    >
+                        OMS
+                    </h2>
+                    <button
+                        onClick={handleSidebarCollapse}
+                        className="rounded-lg  hover:bg-gray-100 flex  justify-center items-center p-2 h-auto"
+                    >
+                        {isCollapsed ? (
+                            <i className="bx bx-menu text-2xl w-5 h-5 flex justify-center items-center" />
+                        ) : (
+                            <i className="bx bx-x  text-2xl w-5 h-5 flex justify-center items-center" />
                         )}
+                    </button>
+                </div>
+                {!isCollapsed && (
+                    <div className="px-4 py-2">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={handleSearchTerm}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
                     </div>
-                ))}
-            </nav>
-        </div>
+                )}
+                <nav className="flex-1  p-4 overflow-y-auto ">
+                    {renderNavLinks()}
+                </nav>
+            </div>
+            {isMobile && !isCollapsed && (
+                <div
+                    className="fixed inset-0 bg-black/20 z-20"
+                    onClick={() => setIsCollapsed(true)}
+                />
+            )}
+        </>
     );
 };
 

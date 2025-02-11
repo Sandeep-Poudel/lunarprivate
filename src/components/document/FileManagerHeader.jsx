@@ -12,16 +12,15 @@ export const FileManagerHeader = ({
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [accessBy, setAccessBy] = useState([]);
 
-    const getPersonList = async () => {
-        try {
-            const response = await customAxios.get(`/Person/GetList/`);
-            const dt = response.data;
-            console.log("List of people ", dt);
-            setPeople(dt);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    // const getPersonList = async () => {
+    //     try {
+    //         const response = await customAxios.get(`/Person/GetList/`);
+    //         const dt = response.data;
+    //         console.log("List of people ", dt);
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
 
     const getAccessList = async () => {
         try {
@@ -37,7 +36,7 @@ export const FileManagerHeader = ({
     };
 
     useEffect(() => {
-        getPersonList();
+        // getPersonList();
         getAccessList();
     }, []);
 
