@@ -57,7 +57,7 @@ function SeeAllOffice() {
     return (
         <>
             {isLoading ? (<Loader />) : (
-                <div className="flex flex-col items-center justify-center h-screen">
+                <div className="flex flex-col items-center justify-center h-full">
                     <p className="text-2xl">Detail of Office</p>
                     <OfficeCard data={formData} isSeeAll={isSeeAll} />
                 </div>

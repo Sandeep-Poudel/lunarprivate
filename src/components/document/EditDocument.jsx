@@ -5,16 +5,17 @@ import { showToast } from "../../utils/ReactToast";
 import handleCatchError from "../../utils/handleCatchError";
 import CLoader from "../../utils/CLoader";
 
-function InsertFile() {
+function EditDocument({ editItem, onClose, onEdit }) {
     const navigate = useNavigate();
     // Use the hook to get search parameters
-    const state = useLocation().state?.data;
     // Retrieve the 'id' parameter and set to the ParentId
-    console.log("Edit file state: ", state);
-    const [title, setTitle] = useState(state?.DocTitle);
-    const DocId = state?.DocId;
-    const [DocDescription, setDocDescription] = useState(state?.DocDescription);
-    const [GroupId, setGroupId] = useState(state?.GroupId);
+    console.log("Edit file editItem: ", editItem);
+    const [title, setTitle] = useState(editItem?.DocTitle);
+    const DocId = editItem?.DocId;
+    const [DocDescription, setDocDescription] = useState(
+        editItem?.DocDescription
+    );
+    const [GroupId, setGroupId] = useState(editItem?.GroupId);
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
@@ -36,7 +37,8 @@ function InsertFile() {
             if (response.status == 200) {
                 showToast("Document updated Successfully", "success");
                 setIsLoading(false);
-                navigate("/document");
+                onEdit();
+                onClose();
             }
         } catch (error) {
             handleCatchError(error, navigate);
@@ -54,13 +56,13 @@ function InsertFile() {
 
     return (
         <>
-            {state ? (
-                <div className="flex mx-auto w-full justify-center">
-                    <div className="w-full border sm:max-w-xl border-indigo-400 m-4 p-4 sm:m-10 ">
+            <div className="fixed inset-0 z-20 bg-black bg-opacity-75 flex justify-center items-center">
+                <div className="flex mx-auto w-full justify-center mt-[64px] max-h-[100%]">
+                    <div className="w-full border bg-white sm:max-w-xl m-4 p-4 sm:m-10 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent">
                         <div className="flex justify-end">
                             <button
                                 className="close-btn text-2xl text-indigo-700 font-extrabold hover:text-red-300"
-                                onClick={() => navigate("/document")}
+                                onClick={onClose}
                             >
                                 X
                             </button>
@@ -133,15 +135,9 @@ function InsertFile() {
                         </div>
                     </div>
                 </div>
-            ) : (
-                <div className="flex justify-center items-center w-full h-full">
-                    <h1 className="text-2xl font-bold text-gray-800">
-                        No Document Found
-                    </h1>
-                </div>
-            )}
+            </div>
         </>
     );
 }
 
-export default InsertFile;
+export default EditDocument;

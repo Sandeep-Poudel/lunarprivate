@@ -5,28 +5,33 @@ import handleCatchError from "../../utils/handleCatchError";
 import Loader from "../../utils/Loader";
 import Pagination from "../../utils/Pagination";
 import DocumentTable from "./DocumentTable";
-import useIsMobile from "../../utils/useMobile";
-import DeleteItem from "../DeleteItem";
+import InsertDocument from "./InsertDocument";
+import EditDocument from "./EditDocument";
 
 function GetDocument() {
     const navigate = useNavigate();
-    const isMobile = useIsMobile();
 
     //demo groupid
     const groupId = 1;
     const [datas, setDatas] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+
     const [isLoading, setIsLoading] = useState(false);
     const [showBlocked, setShowBlocked] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+
     const [filterColumn, setFilterColumn] = useState("default");
     const [sortOrder, setSortOrder] = useState("default");
+
+    const [editItem, setEditItem] = useState(null);
+    const [insertModalOpen, setInsertModalOpen] = useState(false); // Insert modal state
+    const [editModalOpen, setEditModalOpen] = useState(false); // Edit modal state
+
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage] = useState(10);
 
     const columns = [
         { key: "serialNumber", header: "S.N", width: "80px" },
-        { key: "DocId", header: "Document Id" },
 
         { key: "DocTitle", header: "Document Title" },
         { key: "DocDescription", header: "Document Description" },
@@ -56,8 +61,9 @@ function GetDocument() {
         fetchDocuments();
     }, [showBlocked]);
 
-    const handleEdit = (data) => {
-        navigate("editFile/", { state: { data } });
+    const handleEdit = (item) => {
+        setEditItem(item);
+        setEditModalOpen(true);
     };
     const handleView = (data) => {
         navigate(`seeFile/${data.DocId}`, {
@@ -96,6 +102,15 @@ function GetDocument() {
             const matches = Object.values(item || {}).some((value) => {
                 return value?.toString().toLowerCase().includes(query);
             });
+
+            // Check recursively in the children array, if present
+            if (item.children && Array.isArray(item.children)) {
+                const childMatches = item.children.some((child) =>
+                    searchInItem(child)
+                );
+                return matches || childMatches;
+            }
+
             return matches;
         };
 
@@ -157,21 +172,30 @@ function GetDocument() {
             ) : (
                 <div className=" mx-auto">
                     <div className="flex justify-center min-[750px]:justify-end gap-8">
-                        <Link to={`/Document/insert/${groupId}`}>
-                            <button className="bg-green-700 text-white p-4 rounded-xl  flex gap-2 items-center">
-                                <i className="bx bx-plus-medical"></i> New Doc
-                            </button>
-                        </Link>
-                        {/* <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                className="rounded-xl w-4 h-4 cursor-pointer"
-                onChange={handleBlockList}
-                onClick={handleFilterAndSort}
-                checked={showBlocked}
-              />
-              <p>Show Blocked</p>
-            </div> */}
+                        <button
+                            className="bg-green-700 text-white p-4 rounded-xl flex gap-2 items-center"
+                            onClick={() => {
+                                setInsertModalOpen(true);
+                                setEditModalOpen(false);
+                            }}
+                        >
+                            <i className="bx bx-plus-medical"></i> New Doc
+                        </button>
+                        {insertModalOpen && !editModalOpen && (
+                            <InsertDocument
+                                isOpen={insertModalOpen}
+                                onClose={() => setInsertModalOpen(false)}
+                                onInsert={fetchDocuments}
+                            />
+                        )}
+                        {editModalOpen && !insertModalOpen && (
+                            <EditDocument
+                                isOpen={editModalOpen}
+                                onClose={() => setEditModalOpen(false)}
+                                onEdit={fetchDocuments}
+                                editItem={editItem}
+                            />
+                        )}
                     </div>
 
                     <div className="text-3xl text-center">All Document</div>
@@ -236,6 +260,7 @@ function GetDocument() {
                         onEdit={handleEdit}
                         onView={handleView}
                         onDelete={handleDelete}
+                        setEditModalOpen={setEditModalOpen}
                     />
 
                     {/*  */}

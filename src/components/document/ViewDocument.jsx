@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import customAxios from "../../utils/http";
 import { useEffect, useState } from "react";
 import Loader from "../../utils/Loader";
@@ -9,7 +9,9 @@ import { showToast } from "../../utils/ReactToast";
 
 function ViewDocument() {
     const { id } = useParams();
-    const [files, setFiles] = useState([]);
+    const location = useLocation();
+   
+    const [files, setFiles] = useState(location.state?.data);
     const [loading, setLoading] = useState(false);
     const [isModelOpen, setIsModelOpen] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState(new Set());
@@ -120,8 +122,14 @@ function ViewDocument() {
     };
 
     useEffect(() => {
-        fetchDocument();
+        if (!files) {
+            fetchDocument();
+        }
         getDocumentAccess();
+
+        return () => {
+            setFiles(null);
+        };
     }, []);
 
     return (
@@ -132,7 +140,7 @@ function ViewDocument() {
                 <div className="container mx-auto p-6">
                     <FileManagerHeader
                         selectedCount={selectedFiles.size}
-                        totalCount={files.DocFiles?.length}
+                        totalCount={files?.DocFiles?.length}
                         onDeleteSelected={handleDeleteSelected}
                         onSelectAll={handleSelectAll}
                         onClearSelection={handleClearSelection}
@@ -140,7 +148,7 @@ function ViewDocument() {
                         id={id}
                         
                     />
-                    {files.DocFiles?.length > 0 ? (
+                    {files?.DocFiles?.length > 0 ? (
                         <FileGrid
                             files={files}
                             selectedFiles={selectedFiles}
