@@ -75,140 +75,142 @@ function InsertDocument({ onClose, onInsert }) {
         });
     };
     return (
-        <>
-            <div className="fixed inset-0 z-[100] bg-black bg-opacity-75 flex justify-center items-center" onClick={onClose}>
-                <div className="flex mx-auto w-full justify-center mt-[64px] max-h-[100%] ">
-                    <div className="w-full border bg-white sm:max-w-xl m-4 p-4 sm:m-10 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent">
-                        <div className="flex justify-end">
-                            <button
-                                className="close-btn text-2xl text-indigo-700 font-extrabold hover:text-red-300"
-                                onClick={onClose}
-                            >
-                                X
-                            </button>
-                        </div>
-                        <div className="mt-4">
-                            {/* Heading */}
-                            <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-                                Insert Document
-                            </h1>
+        <div
+            className="fixed inset-0 z-[100] bg-black bg-opacity-75  items-center flex mx-auto justify-center  max-h-[100%]"
+            onClick={onClose}
+        >
+                <div
+                    className="w-full border bg-white sm:max-w-xl m-4 p-4 sm:m-10 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className="flex justify-end">
+                        <button
+                            className="close-btn text-2xl text-indigo-700 font-extrabold hover:text-red-300"
+                            onClick={onClose}
+                        >
+                            X
+                        </button>
+                    </div>
+                    <div className="mt-4">
+                        {/* Heading */}
+                        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                            Insert Document
+                        </h1>
 
-                            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Document Name */}
-                                <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="DocumentName"
-                                        className="block text-lg font-medium text-gray-800 mb-1"
-                                    >
-                                        Document Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="DocumentName"
-                                        name="DocumentName"
-                                        value={formData.DocTitle}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                DocTitle: e.target.value,
-                                            })
-                                        }
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
-                                        required
-                                    />
-                                </div>
+                        <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Document Name */}
+                            <div className="md:col-span-2">
+                                <label
+                                    htmlFor="DocumentName"
+                                    className="block text-lg font-medium text-gray-800 mb-1"
+                                >
+                                    Document Name
+                                </label>
+                                <input
+                                    type="text"
+                                    id="DocumentName"
+                                    name="DocumentName"
+                                    value={formData.DocTitle}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            DocTitle: e.target.value,
+                                        })
+                                    }
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
+                                    required
+                                />
+                            </div>
 
-                                {/* Document Description */}
-                                <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="DocumentDescription"
-                                        className="block text-lg font-medium text-gray-800 mb-1"
-                                    >
-                                        Document Description
-                                    </label>
-                                    <textarea
-                                        name="DocumentDescription"
-                                        id="DocumentDescription"
-                                        value={formData.DocDescription}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                DocDescription: e.target.value,
-                                            })
-                                        }
-                                        rows={4}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
-                                    ></textarea>
-                                </div>
+                            {/* Document Description */}
+                            <div className="md:col-span-2">
+                                <label
+                                    htmlFor="DocumentDescription"
+                                    className="block text-lg font-medium text-gray-800 mb-1"
+                                >
+                                    Document Description
+                                </label>
+                                <textarea
+                                    name="DocumentDescription"
+                                    id="DocumentDescription"
+                                    value={formData.DocDescription}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            DocDescription: e.target.value,
+                                        })
+                                    }
+                                    rows={4}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
+                                ></textarea>
+                            </div>
 
-                                {/* File Upload */}
-                                <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="upload"
-                                        className="block text-lg font-medium text-gray-800 mb-1"
-                                    >
-                                        Upload File
-                                    </label>
-                                    <input
-                                        onChange={(e) => handleImageChange(e)}
-                                        placeholder="Add Thumbnail"
-                                        type="file"
-                                        name="image"
-                                        id="image"
-                                        accept="image/*"
-                                    />
-                                </div>
+                            {/* File Upload */}
+                            <div className="md:col-span-2">
+                                <label
+                                    htmlFor="upload"
+                                    className="block text-lg font-medium text-gray-800 mb-1"
+                                >
+                                    Upload File
+                                </label>
+                                <input
+                                    onChange={(e) => handleImageChange(e)}
+                                    placeholder="Add Thumbnail"
+                                    type="file"
+                                    name="image"
+                                    id="image"
+                                    accept="image/*"
+                                />
+                            </div>
 
-                                {/* File Description */}
-                                <div className="md:col-span-2">
-                                    <label
-                                        htmlFor="FileDescription"
-                                        className="block text-lg font-medium text-gray-800 mb-1"
-                                    >
-                                        File Description
-                                    </label>
-                                    <textarea
-                                        name="FileDescription"
-                                        id="FileDescription"
-                                        value={fileData.FileClientDescription}
-                                        onChange={(e) =>
-                                            setFileData({
-                                                ...fileData,
-                                                FileClientDescription:
-                                                    e.target.value,
-                                            })
-                                        }
-                                        rows={4}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
-                                    ></textarea>
-                                </div>
+                            {/* File Description */}
+                            <div className="md:col-span-2">
+                                <label
+                                    htmlFor="FileDescription"
+                                    className="block text-lg font-medium text-gray-800 mb-1"
+                                >
+                                    File Description
+                                </label>
+                                <textarea
+                                    name="FileDescription"
+                                    id="FileDescription"
+                                    value={fileData.FileClientDescription}
+                                    onChange={(e) =>
+                                        setFileData({
+                                            ...fileData,
+                                            FileClientDescription:
+                                                e.target.value,
+                                        })
+                                    }
+                                    rows={4}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-100"
+                                ></textarea>
+                            </div>
 
-                                {/* Buttons */}
-                                <div className="md:col-span-2 flex flex-wrap justify-end gap-4">
+                            {/* Buttons */}
+                            <div className="md:col-span-2 flex flex-wrap justify-end gap-4">
+                                <button
+                                    type="reset"
+                                    className="px-6 py-3 bg-red-700 text-white text-sm rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300"
+                                >
+                                    Clear
+                                </button>
+                                {isLoading ? (
+                                    <CLoader />
+                                ) : (
                                     <button
-                                        type="reset"
-                                        className="px-6 py-3 bg-red-700 text-white text-sm rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300"
+                                        type="submit"
+                                        onClick={handleSubmit}
+                                        className="px-6 py-3 bg-blue-900 text-white text-sm rounded-lg shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
                                     >
-                                        Clear
+                                        Insert
                                     </button>
-                                    {isLoading ? (
-                                        <CLoader />
-                                    ) : (
-                                        <button
-                                            type="submit"
-                                            onClick={handleSubmit}
-                                            className="px-6 py-3 bg-blue-900 text-white text-sm rounded-lg shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300"
-                                        >
-                                            Insert
-                                        </button>
-                                    )}
-                                </div>
-                            </form>
-                        </div>
+                                )}
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
-        </>
+        </div>
     );
 }
 

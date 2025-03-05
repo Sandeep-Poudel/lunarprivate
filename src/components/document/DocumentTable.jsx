@@ -19,9 +19,19 @@ const DocumentTable = ({ data, columns,  onEdit, onView, onDelete,setEditModelOp
         );
     };
 
-    if (isMobile) {
+    
+
+    if (data.length === 0) {
         return (
-            <div className="grid gap-5">
+            <div className="text-xl bg-red-200 border-red-300 border-2 text-red-500 font-semibold leading-8 h-36 flex justify-center items-center  rounded-lg ">
+                No documents found
+            </div>
+        );
+    }
+
+    return (
+        <>
+        <div className="grid gap-5 min-[768px]:hidden flex flex-col">
                 {data.map((item, index) => (
                     <DocumentCard
                         index={index}
@@ -33,31 +43,19 @@ const DocumentTable = ({ data, columns,  onEdit, onView, onDelete,setEditModelOp
                     />
                 ))}
             </div>
-        );
-    }
-
-    if (data.length === 0) {
-        return (
-            <div className="text-xl bg-red-200 border-red-300 border-2 text-red-500 font-semibold leading-8 h-36 flex justify-center items-center  rounded-lg ">
-                No documents found
-            </div>
-        );
-    }
-
-    return (
-        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-lg">
+        <div className="overflow-x-auto rounded-lg border border-gray-300 shadow-lg hidden min-[768px]:block ">
             <table className="table-auto w-full">
                 <thead>
                     <tr className="bg-gray-100">
                         {columns.map((column) => (
                             <th
-                                key={column.key}
-                                className="py-4 px-6 text-left font-semibold text-gray-800 border-b-2 border-gray-300"
-                                style={
-                                    column.width
-                                        ? { width: column.width }
-                                        : undefined
-                                }
+                            key={column.key}
+                            className="py-4 px-6 text-left font-semibold text-gray-800 border-b-2 border-gray-300"
+                            style={
+                                column.width
+                                ? { width: column.width }
+                                : undefined
+                            }
                             >
                                 {column.header}
                             </th>
@@ -70,20 +68,21 @@ const DocumentTable = ({ data, columns,  onEdit, onView, onDelete,setEditModelOp
                 <tbody>
                     {data.map((item, index) => (
                         <DocumentTableRow
-                            key={item.DocId}
-                            data={item}
-                            index={index}
-                            isExpanded={expandedRows.includes(item.DocId)}
-                            onToggle={() => toggleRow(item.DocId)}
-                            onEdit={() => onEdit?.(item)}
-                            onView={() => onView?.(item)}
-                            onDelete={()=>onDelete?.(item.DocId)}
-                            columns={columns.length}
+                        key={item.DocId}
+                        data={item}
+                        index={index}
+                        isExpanded={expandedRows.includes(item.DocId)}
+                        onToggle={() => toggleRow(item.DocId)}
+                        onEdit={() => onEdit?.(item)}
+                        onView={() => onView?.(item)}
+                        onDelete={()=>onDelete?.(item.DocId)}
+                        columns={columns.length}
                         />
                     ))}
                 </tbody>
             </table>
         </div>
+                    </>
     );
 };
 
