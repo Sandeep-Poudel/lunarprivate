@@ -80,7 +80,7 @@ function InsertDocumentGroup({ setOriginalData, setInsertModalOpen, ParentId = n
 
   return (
     <>
-      <div className='fixed inset-0 z-20 bg-black bg-opacity-75 flex justify-center items-center'>
+      <div className='fixed inset-0 z-[100] bg-black bg-opacity-75 flex justify-center items-center'>
         <div className='flex mx-auto w-full justify-center mt-[64px] max-h-[100%]'>
           <div className='w-full border bg-white sm:max-w-xl m-4 p-4 sm:m-10 overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-200 scrollbar-track-transparent'>
             <div className='flex justify-end'>

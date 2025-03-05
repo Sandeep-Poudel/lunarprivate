@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DocumentTableRow from "./DocumentTableRow";
-import useIsMobile from "../../utils/useMobile";
+import {useIsMobile} from "../../utils/useMobile";
 import { DocumentCard } from "./DocumentCard";
 import handleCatchError from "../../utils/handleCatchError";
 import { useNavigate } from "react-router-dom";
