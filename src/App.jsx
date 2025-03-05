@@ -1,7 +1,8 @@
 import React,{Suspense, lazy} from 'react';
 import './App.css';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
-
+import { AuthProvider } from './contexts/AuthContext';
+import AuthWrapper from './routes/AuthWrapper';
 
 /*---- All lazy import so that page download in client system only when redirected -----*/
 //pages
@@ -71,12 +72,17 @@ function App() {
   return (
     <>
       <BrowserRouter>
+      <AuthProvider>
+
       <ToastContainer position='top-right' autoClose={3000} /> {/* Global Toast Container */}
 
         <Routes>
           <Route exact path='/' element= {
               <Suspense fallback={<LazyLoader />}>
-                  <DashboardLayout />
+                    <AuthWrapper>
+                        <DashboardLayout />
+                    </AuthWrapper>
+  
                 </Suspense>
           }>
 
@@ -166,6 +172,7 @@ function App() {
           <Route path='*' element={<Error />}/>
 
         </Routes>
+        </AuthProvider>
 
       </BrowserRouter>
     </>

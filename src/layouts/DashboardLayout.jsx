@@ -7,31 +7,22 @@ import { useState } from "react";
 import useIsMobile from "../utils/useMobile";
 
 const DashboardLayout = () => {
-    const isMobile = useIsMobile();
-    const [isCollapsed, setIsCollapsed] = useState(isMobile);
-
     return (
-        <div className="flex overflow-hidden h-screen">
-            <Sidebar
-                isCollapsed={isCollapsed}
-                setIsCollapsed={setIsCollapsed}         
-            />
-
-            <div className="flex flex-1 flex-col overflow-x-hidden">
-                <Header
-                    isCollapsed={isCollapsed}
-                    isMobile={isMobile}
-                    setIsCollapsed={setIsCollapsed}
-                />
-                <div className="flex-1 overflow-x-auto px-4 py-2 md-px-8 ">
-                    <Suspense fallback={<LazyLoader />}>
-                        <Outlet />
-                    </Suspense>
-                </div>
-            </div>
-            
+      <div className="flex flex-col h-screen">
+        <Suspense fallback={<LazyLoader/>}>
+          <Header />
+        </Suspense>
+  
+        <div className="flex flex-1  overflow-hidden">
+          <Sidebar />
+          <div className="flex-1 bg-gray-100 p-4 overflow-auto scrollbar scrollbar-thumb-indigo-300 scrollbar-track-transparent">
+            <Suspense fallback={<LazyLoader/>}>
+              <Outlet/>
+            </Suspense>
+          </div>
         </div>
+      </div>
     );
-};
+  };
 
 export default DashboardLayout;

@@ -6,7 +6,7 @@ import handleCatchError from "../../utils/handleCatchError";
 import { useNavigate } from "react-router-dom";
 import customAxios from "../../utils/http";
 
-const DocumentTable = ({ data, columns, onEdit, onView, onDelete }) => {
+const DocumentTable = ({ data, columns,  onEdit, onView, onDelete,setEditModelOpen }) => {
     const isMobile = useIsMobile();
     const [expandedRows, setExpandedRows] = useState([]);
 

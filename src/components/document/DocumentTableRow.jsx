@@ -26,7 +26,6 @@ const DocumentTableRow = ({
         <>
             <tr className="border-b-2 border-gray-200 hover:bg-gray-50/50 transition-colors duration-200">
                 <td className="p-4 text-sm">{index + 1}</td>
-                <td className="p-4 text-sm">{data.DocId}</td>
 
                 <td className="p-4 text-sm font-medium">{data.DocTitle}</td>
                 <td className="p-4 text-sm">
@@ -47,7 +46,7 @@ const DocumentTableRow = ({
                     <div className="flex items-center gap-2">
                         <button
                             className="p-2 border rounded-md transition-colors border-gray-300 hover:bg-gray-100"
-                            onClick={onEdit}
+                            onClick={()=>onEdit(data)}
                         >
                             <i
                                 className="bx h-5 w-5 text-lg flex justify-center items-center bx-edit
